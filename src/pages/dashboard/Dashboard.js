@@ -29,7 +29,7 @@ function Dashboard() {
           <div className="pl-1 h-20 bg-green-400 rounded-lg shadow-md">
             <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
               <div className="my-auto">
-                <p className="font-bold">DATA RUANG</p>
+                <p className="font-bold">DATA RUANGAN</p>
               </div>
               <div className="my-auto">
                 <FontAwesomeIcon icon={faUser} />
