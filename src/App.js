@@ -1,38 +1,32 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NavbarComp from './components/Navbar';
-import Login from './auth/Login';
-import Register from './auth/Register';
-import Siswa from './components/Siswa';
-import Home from './components/Home';
-import Tambah from './components/Tambah';
-import Guru from './components/Guru';
-import Tambah_guru from './components/Tambah_guru';
-import Mapel from './components/Mapel';
-import Tambah_Mapel from './components/Tambah_mapel';
-import Kelas from './components/Kelas';
-import Tambah_Kelas from './components/Tambah_kelas';
+// App.js
+
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Register from "./pages/auth/Register";
+import Login from "./pages/auth/login";
+import Dashboard from "./pages/dashboard/Dashboard";
+import { isAuthenticated } from "./utils/auth";
+// import "./App.css";
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <NavbarComp />
+    <div className="App">
+      <BrowserRouter>
         <Routes>
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Register" element={<Register />} />
-          <Route path="/Siswa" element={<Siswa />} />
-          <Route path="/Home" element={<Home />} />
-          <Route path="/Tambah" element={<Tambah />} />
-          <Route path="/Guru" element={<Guru />} />
-          <Route path="/Tambah_guru" element={<Tambah_guru />} />
-          <Route path="/Mapel" element={<Mapel />} />
-          <Route path="/Tambah_Mapel" element={<Tambah_Mapel />} />
-          <Route path="/Kelas" element={<Kelas />} />
-          <Route path="/Tambah_Kelas" element={<Tambah_Kelas />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Gunakan validasi isAuthenticated untuk rute /dashboard */}
+          <Route
+            path="/dashboard"
+            element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
+          />
+
+          {/* Redirect default ke /login jika tidak ada rute yang cocok */}
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
-      </div>
-    </Router>
+      </BrowserRouter>
+    </div>
   );
 }
 
