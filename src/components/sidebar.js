@@ -95,7 +95,7 @@ function Sidebar({ page }) {
             page === "template" ? "bg-gray-100 text-black" : ""
           }`}
         >
-          <a href="/PeminjamanTempat" className="flex gap-5">
+          <a href="/Peminjaman Tempat" className="flex gap-5">
             <div>
             <FontAwesomeIcon icon={faMap}/> {/* Gunakan ikon users */}
             </div>

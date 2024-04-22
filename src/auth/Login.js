@@ -5,55 +5,57 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 function LoginForm() {
-  // State untuk menyimpan nilai email dan password
-  const [showPassword, setShowPassword] = useState(false); 
-  const [username, setUsername] = useState(""); 
-  const [password, setPassword] = useState(""); 
-  const [role, setRole] = useState("admin"); 
- 
+  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('admin');
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const passwordInputType = showPassword ? 'text' : 'password';
 
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Menghentikan pengiriman form
 
-  const handleLogin = async (e) => { 
-    e.preventDefault(); 
- 
-    const data = { 
-      username: username, 
-      password: password, 
-      role: role, 
-    }; 
- 
-    try { 
-      const response = await axios.post(`http://localhost:8080/login`, data); 
- 
-      if (response.status === 200) { 
-        Swal.fire({ 
-          icon: "success", 
-          title: "Berhasil Login Sebagai Admin", 
-          showConfirmButton: false, 
-          timer: 1500, 
-        }); 
- 
-        // Redirect user to dashboard after successful login 
-        setTimeout(() => { 
-          window.location.href = "/home"; 
-        }, 1500); 
- 
-        localStorage.setItem("id", response.data.userData.id); 
-        localStorage.setItem("role", response.data.userData.role); 
-        localStorage.setItem("token", response.data.token); 
-      } 
-    } catch (error) { 
-      Swal.fire({ 
-        icon: "error", 
-        title: "Username / Password Salah", 
-      }); 
-      console.error(error); 
-    } 
+    const data = {
+      username: username,
+      password: password,
+      role: role,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:2001/login', data);
+
+      // Handle response setelah login berhasil
+      if (response.status === 200) {
+        // Simpan informasi pengguna dan token ke localStorage
+        localStorage.setItem('id', response.data.userData.id);
+        localStorage.setItem('role', response.data.userData.role);
+        localStorage.setItem('token', response.data.token);
+
+        // Tampilkan pesan sukses dan redirect pengguna setelah login berhasil
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Login',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        // Redirect pengguna ke dashboard setelah 1.5 detik
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      // Handle error secara lebih spesifik di sini jika diperlukan
+      Swal.fire({
+        icon: 'error',
+        title: 'Username / Password Salah',
+      });
+    }
   };
 
   return (
@@ -77,9 +79,8 @@ function LoginForm() {
                       placeholder="Username"
                       autoComplete="off"
                       className="form-control"
-                      value={username} 
+                      value={username}
                       onChange={(e) => setUsername(e.target.value)}
-
                     />
                   </div>
                   <div className="form-group">
@@ -92,9 +93,8 @@ function LoginForm() {
                       id="password"
                       placeholder="Password"
                       className="form-control"
-                      value={password} 
+                      value={password}
                       onChange={(e) => setPassword(e.target.value)}
-
                     />
                   </div>
                   <div className="form-group mt-3">
@@ -106,7 +106,6 @@ function LoginForm() {
                         checked={showPassword}
                         onChange={toggleShowPassword}
                       />
-
                       <label className="form-check-label" htmlFor="showPassword">
                         Show Password
                       </label>
@@ -114,7 +113,6 @@ function LoginForm() {
                   </div>
                   <button type="submit" className="btn btn-secondary mt-3">
                     Login
-                    
                   </button>
                 </form>
                 <p className="lead"></p>
@@ -126,12 +124,12 @@ function LoginForm() {
                   <h2 style={{ color: 'white' }}>Sign up</h2>
                   <p className="mt-3" style={{ color: 'white' }}>Masuk dengan mengisi Email dan password</p>
                   <Link
-                      to="/Register"
-                      className="btn btn-primary btn-lg active mt-3 text-uppercase"
-                      style={{ backgroundColor: 'var(--bs-secondary-bg)', color: 'black' }}
-                      >
-                      Register
-                    </Link>
+                    to="/Register"
+                    className="btn btn-primary btn-lg active mt-3 text-uppercase"
+                    style={{ backgroundColor: 'var(--bs-secondary-bg)', color: 'black' }}
+                  >
+                    Register
+                  </Link>
                 </div>
               </div>
             </div>

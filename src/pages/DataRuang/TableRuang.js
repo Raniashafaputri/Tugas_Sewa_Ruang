@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPenSquare, faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
 function TableDataRuang() {
-  const [DataRuang, setDataRuang] = useState([]);
+  const [dataRuang, setDataRuang] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
-  // Mengambil data mapel dari API saat komponen dimuat
+  // Mengambil data ruang dari API saat komponen dimuat
   useEffect(() => {
-    getAllMapel();
+    getAllRuang();
   }, []);
 
-  // Fungsi untuk mengambil semua data mapel dari API
-  const getAllMapel = async () => {
+  // Fungsi untuk mengambil semua data ruang dari API
+  const getAllRuang = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/mapel`, {
+      const response = await axios.get(`http://localhost:8080/api/rooms`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -34,8 +34,8 @@ function TableDataRuang() {
     }
   };
 
-  // Fungsi untuk menghapus data mapel berdasarkan ID
-  const deleteDataRuang = async (id) => {
+  // Fungsi untuk menghapus data ruang berdasarkan ID
+  const deleteRuang = async (id) => {
     const token = localStorage.getItem("token");
 
     await Swal.fire({
@@ -50,7 +50,7 @@ function TableDataRuang() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/api/mapel/hapus/${id}`, {
+          .delete(`http://localhost:8080/api/rooms/${id}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -63,7 +63,7 @@ function TableDataRuang() {
               showConfirmButton: false,
               timer: 1500,
             });
-            getAllMapel(); // Memuat data mapel kembali setelah menghapus
+            getAllRuang(); // Memuat data ruang kembali setelah menghapus
           })
           .catch((error) => {
             console.error("Error deleting data:", error);
@@ -80,7 +80,11 @@ function TableDataRuang() {
   // Menghitung indeks item pada halaman saat ini
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = DataRuang.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = dataRuang
+    .filter((ruang) =>
+      ruang.roomName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .slice(indexOfFirstItem, indexOfLastItem);
 
   // Fungsi untuk navigasi halaman
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -90,13 +94,13 @@ function TableDataRuang() {
       {/* Sidebar */}
       <Sidebar page="DataRuang" />
 
-      {/* Konten Tabel Mapel */}
+      {/* Konten Tabel Ruang */}
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Data Ruang</h1>
-        <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg">
+        <div className="tabel-ruang mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Data Ruang
-            <Link to={`/mapel/add-mapel`}>
+            <Link to={`/rooms/add-room`}>
               <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
                 <FontAwesomeIcon
                   icon={faPlus}
@@ -118,11 +122,52 @@ function TableDataRuang() {
             </div>
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    No
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nama Ruangan
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentItems.map((ruang, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {ruang.roomName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link
+                        to={`/rooms/edit/${ruang.id}`}
+                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                      >
+                        <FontAwesomeIcon icon={faPenSquare} />
+                      </Link>
+                      <button
+                        onClick={() => deleteRuang(ruang.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           {/* Pagination */}
           <div className="flex justify-center mt-4">
             <ul className="pagination">
-              {Array(Math.ceil(DataRuang.length / itemsPerPage))
+              {Array(Math.ceil(dataRuang.length / itemsPerPage))
                 .fill()
                 .map((_, index) => (
                   <li

@@ -36,10 +36,10 @@ function Register() {
     } 
  
     try { 
-      const response = await axios.post(`http://localhost:8080/register`, { 
+      const response = await axios.post(`http://localhost:2001/register`, { 
         username, 
         password, 
-        role, 
+        role: "admin", 
       }); 
  
       if (response.data === "Username already taken") { 
@@ -136,12 +136,6 @@ function Register() {
                   <button type="submit" className="btn btn-secondary mt-3">
                     Register
                   </button>
-                  {/* <div className="card-body">
-                    <form onSubmit={handleSubmit}>
-                    </form>
-                    <p className="lead">Belum punya akun? <Link to="/Login">Login sekarang
-                    </Link></p>
-                  </div>` */}
                 </form>
                 <p className="lead"></p>
               </div>
