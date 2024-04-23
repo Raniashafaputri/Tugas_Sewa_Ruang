@@ -32,6 +32,7 @@ function LoginForm() {
       if (response.status === 200) {
         // Simpan informasi pengguna dan token ke localStorage
         localStorage.setItem('id', response.data.userData.id);
+        localStorage.setItem('username', response.data.userData.id);
         localStorage.setItem('role', response.data.userData.role);
         localStorage.setItem('token', response.data.token);
 

@@ -22,7 +22,7 @@ function Login() {
     };
 
     try {
-      const response = await axios.post(`http://localhost:8080/login`, data);
+      const response = await axios.post(`http://localhost:2001/login`, data);
 
       if (response.status === 200) {
         Swal.fire({

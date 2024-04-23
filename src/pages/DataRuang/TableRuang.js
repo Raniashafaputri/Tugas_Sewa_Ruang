@@ -12,17 +12,11 @@ function TableDataRuang() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
-  // Mengambil data ruang dari API saat komponen dimuat
-  useEffect(() => {
-    getAllRuang();
-  }, []);
-
-  // Fungsi untuk mengambil semua data ruang dari API
   const getAllRuang = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/rooms`, {
+      const response = await axios.get(`http://localhost:2001/DataRuang`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -34,7 +28,6 @@ function TableDataRuang() {
     }
   };
 
-  // Fungsi untuk menghapus data ruang berdasarkan ID
   const deleteRuang = async (id) => {
     const token = localStorage.getItem("token");
 
@@ -50,7 +43,7 @@ function TableDataRuang() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/api/rooms/${id}`, {
+          .delete(`http://localhost:2001/DataRuang/hapus`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -63,7 +56,7 @@ function TableDataRuang() {
               showConfirmButton: false,
               timer: 1500,
             });
-            getAllRuang(); // Memuat data ruang kembali setelah menghapus
+            getAllRuang();
           })
           .catch((error) => {
             console.error("Error deleting data:", error);
@@ -72,12 +65,15 @@ function TableDataRuang() {
     });
   };
 
-  // Fungsi untuk melakukan pencarian
+  
+  useEffect(() => {
+    getAllRuang();
+  }, []);
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  // Menghitung indeks item pada halaman saat ini
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = dataRuang
@@ -86,21 +82,17 @@ function TableDataRuang() {
     )
     .slice(indexOfFirstItem, indexOfLastItem);
 
-  // Fungsi untuk navigasi halaman
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <Sidebar page="DataRuang" />
-
-      {/* Konten Tabel Ruang */}
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Data Ruang</h1>
         <div className="tabel-ruang mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Data Ruang
-            <Link to={`/rooms/add-room`}>
+            <Link to={`/AddRuang`}>
               <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
                 <FontAwesomeIcon
                   icon={faPlus}
@@ -132,6 +124,9 @@ function TableDataRuang() {
                     Nama Ruangan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Foto
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Aksi
                   </th>
                 </tr>
@@ -144,6 +139,13 @@ function TableDataRuang() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {ruang.roomName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {ruang.fotoUrl ? (
+                        <img src={ruang.fotoUrl} alt={ruang.roomName} className="h-10 w-10 rounded-full" />
+                      ) : (
+                        "N/A"
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link

@@ -6,64 +6,41 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
-function TableDataPelanggan() {
-  const [pelanggan, setPelanggan] = useState([]);
+function TablePeminjamanTempat() {
+  const [peminjaman, setPeminjaman] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
   useEffect(() => {
-    getAllPelanggan();
+    fetchPeminjamanData();
   }, []);
 
-  const getAllPelanggan = async () => {
-    const token = localStorage.getItem("token");
-
+  const fetchPeminjamanData = async () => {
     try {
-      const response = await axios.get(`http://localhost:2001/api/data-pelanggan/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setPelanggan(response.data);
+      const response = await axios.get("http://localhost:8080/api/peminjaman");
+      setPeminjaman(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  const deletePelanggan = async (id) => {
-    const token = localStorage.getItem("token");
-
+  const deletePeminjaman = async (id) => {
     try {
-      const result = await Swal.fire({
-        title: "Anda yakin?",
-        text: "Yakin ingin menghapus data ini?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hapus!",
-        cancelButtonText: "Batal",
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:8080/api/peminjaman/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      if (result.isConfirmed) {
-        await axios.delete(`http://localhost:2001/api/data-pelanggan/hapus`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        Swal.fire({
-          position: "center",
-          icon: "success",
-          title: "Data berhasil dihapus",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-
-        getAllPelanggan();
-      }
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Data berhasil dihapus",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      fetchPeminjamanData(); // Memuat data peminjaman kembali setelah menghapus
     } catch (error) {
       console.error("Error deleting data:", error);
       Swal.fire({
@@ -83,19 +60,19 @@ function TableDataPelanggan() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = pelanggan.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = peminjaman.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex h-screen">
-      <Sidebar page="pelanggan" />
+      <Sidebar page="peminjaman" />
       <div className="content-page max-h-screen container p-8 min-h-screen">
-        <h1 className="judul text-3xl font-semibold">Data Pelanggan</h1>
-        <div className="tabel-pelanggan mt-12 bg-white p-5 rounded-xl shadow-lg">
+        <h1 className="judul text-3xl font-semibold">Data Peminjaman Tempat</h1>
+        <div className="tabel-peminjaman mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
-            Data Pelanggan
-            <Link to="/AddPelanggan">
+            Data Peminjaman Tempat
+            <Link to="/AddpeminjamanTempat">
               <div className="rounded-lg shadow-xl px-3 py-3 bg-blue-100">
                 <FontAwesomeIcon icon={faPlus} className="h-5 w-5 text-blue-500" />
               </div>
@@ -121,41 +98,41 @@ function TableDataPelanggan() {
                     NO
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NAMA
+                    Nama Peminjam
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NO TELEPON
+                    Ruangan
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    EMAIL
+                    Tanggal Peminjaman
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    AKSI
+                    Aksi
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentItems
-                  .filter((pelangganData) =>
-                    pelangganData.nama.toLowerCase().includes(searchTerm.toLowerCase())
+                  .filter((item) =>
+                    item.namaPeminjam.toLowerCase().includes(searchTerm.toLowerCase())
                   )
-                  .map((pelangganData, index) => (
+                  .map((item, index) => (
                     <tr key={index}>
                       <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                         {index + 1}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.nama}
+                        {item.namaPeminjam}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.noTelepon}
+                        {item.ruangan}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.email}
+                        {item.tanggalPeminjaman}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2">
                         <div className="flex items-center space-x-4">
-                          <Link to={`/pelanggan/update/${pelangganData.id}`}>
+                          <Link to={`/peminjaman/update/${item.id}`}>
                             <FontAwesomeIcon
                               icon={faPenSquare}
                               className="h-5 w-5 text-blue-500 cursor-pointer"
@@ -164,7 +141,7 @@ function TableDataPelanggan() {
                           <FontAwesomeIcon
                             icon={faTrashAlt}
                             className="h-5 w-5 text-red-500 cursor-pointer"
-                            onClick={() => deletePelanggan(pelangganData.id)}
+                            onClick={() => deletePeminjaman(item.id)}
                           />
                         </div>
                       </td>
@@ -175,12 +152,14 @@ function TableDataPelanggan() {
           </div>
           <div className="flex justify-center mt-4">
             <ul className="pagination">
-              {Array(Math.ceil(pelanggan.length / itemsPerPage))
+              {Array(Math.ceil(peminjaman.length / itemsPerPage))
                 .fill()
                 .map((_, index) => (
                   <li
                     key={index}
-                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
+                    className={`page-item ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
                   >
                     <button onClick={() => paginate(index + 1)} className="page-link">
                       {index + 1}
@@ -195,4 +174,4 @@ function TableDataPelanggan() {
   );
 }
 
-export default TableDataPelanggan;
+export default TablePeminjamanTempat;

@@ -96,7 +96,7 @@ function TableTambahanPeminjaman() {
         <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Tambahan Peminjaman
-            <Link to={`/mapel/add-mapel`}>
+            <Link to={'/AddPeminjaman'}>
               <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
                 <FontAwesomeIcon
                   icon={faPlus}

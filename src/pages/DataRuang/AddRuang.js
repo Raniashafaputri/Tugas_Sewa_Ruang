@@ -2,28 +2,34 @@ import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-function AddRoomData() {
-  const [floorNumber, setFloorNumber] = useState("");
-  const [roomName, setRoomName] = useState("");
-  const [roomPhoto, setRoomPhoto] = useState(null);
+function AddRuang() {
+  const [nomorLantai, setNomorLantai] = useState("");
+  const [namaRuangan, setNamaRuangan] = useState("");
+  const [fotoRuang, setFotoRuang] = useState(null);
 
   const addRoom = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("floorNumber", floorNumber);
-    formData.append("roomName", roomName);
-    formData.append("roomPhoto", roomPhoto);
+    const newAddRuang = {
+      nomor_lantai: nomorLantai,
+      nama_ruangan: namaRuangan,
+      foto_ruang: fotoRuang,
+    };
+
+    // Mendapatkan token dari local storage
+    const token = localStorage.getItem("token");
 
     try {
+      // Menambahkan header Authorization dengan token ke dalam permintaan
       const response = await axios.post(
-        "http://localhost:8080/api/rooms",
-        formData,
+        "http://localhost:2001/DataRuang/add",
+        newAddRuang,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Set the content type for FormData
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -31,22 +37,26 @@ function AddRoomData() {
       Swal.fire({
         position: "center",
         icon: "success",
-        title: "Data Ruang berhasil ditambahkan!",
+        title: "Berhasil ditambahkan",
         showConfirmButton: false,
         timer: 1500,
       });
 
-      // Reset input fields after successful addition
-      setFloorNumber("");
-      setRoomName("");
-      setRoomPhoto(null); // Reset file input
+      setTimeout(() => {
+        window.location.href = "/guru";
+      }, 1500);
     } catch (error) {
-      console.error("Error adding Room Data:", error);
+      console.error("Error adding ruang:", error);
+      if (error.response) {
+        // Error response received from server
+        console.error("Server responded with status:", error.response.status);
+        console.error("Server responded with data:", error.response.data);
+      }
       Swal.fire({
         position: "center",
         icon: "error",
         title: "Terjadi Kesalahan!",
-        text: "Gagal menambahkan data ruang. Mohon coba lagi.",
+        text: "Mohon coba lagi atau hubungi administrator",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -54,8 +64,8 @@ function AddRoomData() {
   };
 
   const handleFileChange = (e) => {
-    // Set the selected file for roomPhoto
-    setRoomPhoto(e.target.files[0]);
+    // Set the selected file for fotoRuang
+    setFotoRuang(e.target.files[0]);
   };
 
   return (
@@ -70,49 +80,50 @@ function AddRoomData() {
           <h2 className="text-xl mb-5 font-medium">Tambah Data Ruang</h2>
           <form onSubmit={addRoom}>
             <div className="mb-4">
-              <label htmlFor="floorNumber" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="nomorLantai" className="block text-sm font-medium text-gray-900">
                 Nomor Lantai
               </label>
               <input
                 type="text"
-                id="floorNumber"
+                id="nomorLantai"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={floorNumber}
-                onChange={(e) => setFloorNumber(e.target.value)}
+                value={nomorLantai}
+                onChange={(e) => setNomorLantai(e.target.value)}
                 required
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="roomName" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="namaRuangan" className="block text-sm font-medium text-gray-900">
                 Nama Ruangan
               </label>
               <input
                 type="text"
-                id="roomName"
+                id="namaRuangan"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
+                value={namaRuangan}
+                onChange={(e) => setNamaRuangan(e.target.value)}
                 required
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="roomPhoto" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="fotoRuang" className="block text-sm font-medium text-gray-900">
                 Foto Ruang
               </label>
               <input
                 type="file"
-                id="roomPhoto"
+                id="fotoRuang"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 accept="image/*"
                 onChange={handleFileChange}
                 required
               />
             </div>
-            <div className="flex justify-between">
-              <Link to="/rooms" className="btn bg-gray-400">
-                Batal
-              </Link>
-              <button type="submit" className="btn bg-blue-500 text-white">
+            <div className="flex justify-between mt-6">
+              <button
+                type="submit"
+                className="block w-20 rounded-lg text-white bg-blue-500 py-3 text-sm font-medium flex items-center justify-center"
+              >
+                <FontAwesomeIcon icon={faSave} className="mr-2" />
                 Simpan
               </button>
             </div>
@@ -123,4 +134,4 @@ function AddRoomData() {
   );
 }
 
-export default AddRoomData;
+export default AddRuang;

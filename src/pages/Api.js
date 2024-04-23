@@ -1,135 +1,214 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-  faKey,
-  faEye,
-  faEyeSlash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
-function Login() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("admin");
+function TableKelas() {
+  const [kelas, setKelas] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    const data = {
-      username: username,
-      password: password,
-      role: role,
-    };
+  const getAllKelas = async () => {
+    const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.post(`http://localhost:8080/login`, data);
-
-      if (response.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: "Berhasil Login Sebagai Admin",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-
-        // Redirect user to dashboard after successful login
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1500);
-
-        localStorage.setItem("id", response.data.userData.id);
-        localStorage.setItem("role", response.data.userData.role);
-        localStorage.setItem("token", response.data.token);
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Username / Password Salah",
+      const response = await axios.get(`http://localhost:8080/api/data_kelas`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      console.error(error);
+
+      setKelas(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
+  const deleteKelas = async (id) => {
+    const token = localStorage.getItem("token");
+
+    await Swal.fire({
+      title: "Anda yakin?",
+      text: "Yakin ingin menghapus data kelas ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`http://localhost:8080/api/data_kelas/hapus/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(() => {
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "Berhasil Menghapus!!",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            getAllKelas(); // Mengambil data guru kembali setelah menghapus
+          })
+          .catch((error) => {
+            console.error("Error deleting data:", error);
+          });
+      }
+    });
+  };
+
+  useEffect(() => {
+    getAllKelas();
+  }, []);
+
+  // Search function
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = kelas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
-    <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-        <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-          <div className="max-w-md mx-auto">
-            <div>
-              <h1 className="text-2xl font-semibold text-center">Login Form</h1>
-            </div>
-            <form onSubmit={handleLogin}>
-              <div className="divide-y divide-gray-200">
-                <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                  <div className="mb-5 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon
-                        icon={faUser}
-                        className="text-gray-500"
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      id="username"
-                      className="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Username"
-                      required
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-5 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faKey} className="text-gray-500" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      className="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 flex items-center px-2 focus:outline-none top"
-                      onClick={togglePasswordVisibility}
-                    >
-                      <FontAwesomeIcon
-                        icon={showPassword ? faEyeSlash : faEye}
-                        className="text-gray-600 dark:text-white"
-                      />
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <button
-                      type="submit"
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    >
-                      Submit
-                    </button>
-                    <p className="mt-3 text-sm text-center text-gray-600">
-                      Belum punya akun?{" "}
-                      <a
-                        href="/register"
-                        className="text-blue-700 hover:underline"
-                      >
-                        Daftar sekarang
-                      </a>
-                    </p>
-                  </div>
-                </div>
+    <div className="flex h-screen">
+      <div>
+        <Sidebar />
+      </div>
+      {/* Konten Dashboard */}
+      <div className="content-page max-h-screen container p-8 min-h-screen">
+        <h1 className="judul text-3xl font-semibold">Tabel Kelas</h1>
+        <div className="tabel-siswa mt-12 bg-white p-5 rounded-xl shadow-lg">
+          <h2 className="text-xl flex justify-between items-center">
+            Tabel Kelas
+            <Link to={`/kelas/add-kelas`}>
+              {" "}
+              <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
+                <FontAwesomeIcon
+                  icon={faPlus}
+                  className="h-5 w-5 text-blue-500"
+                />
               </div>
-            </form>
+            </Link>
+          </h2>
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex items-center">
+              <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Cari kelas..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="px-3 py-2 border rounded-md"
+              />
+            </div>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
+            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
+              <thead className="text-left">
+                <tr>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    No
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Kelas
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Nama Jurusan
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200">
+                {currentItems
+                  .filter((kelasData) =>
+                    kelasData.nama_kelas
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((kelasData, index) => (
+                    <tr key={index}>
+                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                        {kelasData.nama_kelas}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                        {kelasData.nama_jurusan}
+                      </td>
+
+                      <td className="whitespace-nowrap text-ceter py-2">
+                        <div className="flex items-center -space-x-4">
+                          <Link to={`/kelas/update-kelas/${kelasData.id}`}>
+                            <button
+                              className="z-20 block rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 active:bg-blue-50"
+                              type="button"
+                            >
+                              {/* Pencil Icon */}
+                              <span className="relative inline-block">
+                                <FontAwesomeIcon
+                                  icon={faPenToSquare}
+                                  className="h-4 w-4"
+                                />
+                              </span>
+                            </button>
+                          </Link>
+
+                          <button
+                            className="z-30 block rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
+                            type="button"
+                          >
+                            <span className="relative inline-block">
+                              <FontAwesomeIcon
+                                icon={faTrashCan}
+                                className="h-4 w-4"
+                                onClick={() => deleteKelas(kelasData.id)}
+                              />
+                            </span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center mt-4">
+            <ul className="pagination">
+              {Array(Math.ceil(kelas.length / itemsPerPage))
+                .fill()
+                .map((_, index) => (
+                  <li
+                    key={index}
+                    className={`page-item ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      onClick={() => setCurrentPage(index + 1)}
+                      className="page-link"
+                    >
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+            </ul>
           </div>
         </div>
       </div>
@@ -137,4 +216,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default TableKelas;

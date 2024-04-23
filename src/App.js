@@ -11,6 +11,7 @@ import AddPeminjaman from "./pages/Tambahan Peminjaman/AddPeminjaman";
 import TableSewa from "./pages/ReportSewa/TableSewa";
 import TableRuang from "./pages/DataRuang/TableRuang";
 import AddRuang from "./pages/DataRuang/AddRuang";
+import TablePeminjamanTempat from "./pages/Peminjaman Tempat/TablePeminjamanTempat";
 import AddPeminjamanTempat from "./pages/Peminjaman Tempat/AddPeminjamanTempat";
 import Dashboard from "./pages/dashboard/Dashboard";
 import { isAuthenticated } from "./utils/auth";
@@ -26,16 +27,43 @@ function App() {
           <Route
             path="/dashboard"
             element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
+          />y
+           <Route
+            path="/Data Pelanggan"
+            element={isAuthenticated() ? <TablePelanggan /> : <Navigate to="/" />}
           />
-          <Route path="/Data Pelanggan" element={<TablePelanggan />} />
-          <Route path="/Data Pelanggan" element={<AddPelanggan />} />
-          <Route path="/Tambahan Peminjaman" element={<TablePeminjaman />} />
-          <Route path="/Tambahan Peminjaman" element={<AddPeminjaman />} />
-          <Route path="/ReportSewa" element={<TableSewa />} />
-          <Route path="/DataRuang" element={<TableRuang />} />
-          <Route path="/DataRuang" element={<AddRuang />} />
-          <Route path="/Peminjaman Tempat" element={<AddPeminjamanTempat />} />
-          <Route path="*" element={<Navigate to="/login" />} />
+            <Route
+            path="/AddPelanggan"
+            element={isAuthenticated() ? <AddPelanggan /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/Tambahan Peminjaman"
+            element={isAuthenticated() ? <TablePeminjaman /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/AddPeminjaman"
+            element={isAuthenticated() ? <AddPeminjaman /> : <Navigate to="/" />}
+          />
+            <Route
+            path="/ReportSewa"
+            element={isAuthenticated() ? <TableSewa /> : <Navigate to="/" />}
+          />
+           <Route
+            path="/DataRuang"
+            element={isAuthenticated() ? <TableRuang /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/AddRuang"
+            element={isAuthenticated() ? <AddRuang /> : <Navigate to="/" />}
+          />
+             <Route
+            path="/Peminjaman Tempat"
+            element={isAuthenticated() ? <TablePeminjamanTempat /> : <Navigate to="/" />}
+          />
+             <Route
+            path="/AddPeminjamanTempat"
+            element={isAuthenticated() ? <AddPeminjamanTempat /> : <Navigate to="/" />}
+          />
         </Routes>
       </BrowserRouter>
     </div>
