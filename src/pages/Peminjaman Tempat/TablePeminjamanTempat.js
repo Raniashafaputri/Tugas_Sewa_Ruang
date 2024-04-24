@@ -12,13 +12,21 @@ function TablePeminjamanTempat() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
+ 
   useEffect(() => {
-    fetchPeminjamanData();
+    getAllPeminjaman();
   }, []);
 
-  const fetchPeminjamanData = async () => {
+  const getAllPeminjaman = async () => {
+    const token = localStorage.getItem("token");
+
     try {
-      const response = await axios.get("http://localhost:8080/api/peminjaman");
+      const response = await axios.get(`http://localhost:2001/api/data-peminjaman/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setPeminjaman(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -26,21 +34,37 @@ function TablePeminjamanTempat() {
   };
 
   const deletePeminjaman = async (id) => {
+    const token = localStorage.getItem("token");
+
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:8080/api/peminjaman/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const result = await Swal.fire({
+        title: "Anda yakin?",
+        text: "Yakin ingin menghapus data ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal",
       });
-      Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Data berhasil dihapus",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      fetchPeminjamanData(); // Memuat data peminjaman kembali setelah menghapus
+
+      if (result.isConfirmed) {
+        await axios.delete(`http://localhost:2001/api/data-peminjaman/hapus`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Data berhasil dihapus",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        getAllPeminjaman();
+      }
     } catch (error) {
       console.error("Error deleting data:", error);
       Swal.fire({
@@ -112,42 +136,48 @@ function TablePeminjamanTempat() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {currentItems
-                  .filter((item) =>
-                    item.namaPeminjam.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((item, index) => (
-                    <tr key={index}>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {item.namaPeminjam}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {item.ruangan}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {item.tanggalPeminjaman}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2">
-                        <div className="flex items-center space-x-4">
-                          <Link to={`/peminjaman/update/${item.id}`}>
-                            <FontAwesomeIcon
-                              icon={faPenSquare}
-                              className="h-5 w-5 text-blue-500 cursor-pointer"
-                            />
-                          </Link>
-                          <FontAwesomeIcon
-                            icon={faTrashAlt}
-                            className="h-5 w-5 text-red-500 cursor-pointer"
-                            onClick={() => deletePeminjaman(item.id)}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
+            {currentItems
+              .filter((item) => {
+                // Periksa apakah namaPeminjam tidak null atau undefined sebelum menggunakan toLowerCase()
+                return item.namaPeminjam && item.namaPeminjam.toLowerCase().includes(searchTerm.toLowerCase());
+              })
+              .map((item, index) => (
+                <tr key={index}>
+                  {/* Kolom No */}
+                  <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    {index + 1}
+                  </td>
+                  {/* Kolom Nama Peminjam */}
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {item.namaPeminjam}
+                  </td>
+                  {/* Kolom lainnya (contoh: Ruangan, Tanggal Peminjaman, Aksi) */}
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {item.ruangan}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    {item.tanggalPeminjaman}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2">
+                    <div className="flex items-center space-x-4">
+                      {/* Link untuk mengedit */}
+                      <Link to={`/peminjaman/update/${item.id}`}>
+                        <FontAwesomeIcon
+                          icon={faPenSquare}
+                          className="h-5 w-5 text-blue-500 cursor-pointer"
+                        />
+                      </Link>
+                      {/* Tombol untuk menghapus (dengan onClick handler) */}
+                      <FontAwesomeIcon
+                        icon={faTrashAlt}
+                        className="h-5 w-5 text-red-500 cursor-pointer"
+                        onClick={() => deletePeminjaman(item.id)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
             </table>
           </div>
           <div className="flex justify-center mt-4">

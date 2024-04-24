@@ -16,7 +16,7 @@ function TableDataRuang() {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get(`http://localhost:2001/DataRuang`, {
+      const response = await axios.get(`http://localhost:2001/DataRuang/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -30,58 +30,59 @@ function TableDataRuang() {
 
   const deleteRuang = async (id) => {
     const token = localStorage.getItem("token");
-
-    await Swal.fire({
-      title: "Anda yakin?",
-      text: "Yakin ingin menghapus data ini?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, hapus!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .delete(`http://localhost:2001/DataRuang/hapus`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(() => {
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Berhasil Menghapus!!",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            getAllRuang();
-          })
-          .catch((error) => {
-            console.error("Error deleting data:", error);
-          });
-      }
-    });
-  };
-
   
-  useEffect(() => {
-    getAllRuang();
-  }, []);
-
+    try {
+      const result = await Swal.fire({
+        title: "Anda yakin?",
+        text: "Yakin ingin menghapus data ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal",
+      });
+  
+      if (result.isConfirmed) {
+        await axios.delete(`http://localhost:2001/DataRuang/hapus/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Data berhasil dihapus",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+  
+        // Perbarui data ruangan setelah berhasil menghapus
+        getAllRuang();
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Gagal menghapus data",
+        text: "Terjadi kesalahan saat menghapus data. Silakan coba lagi.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+  
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = dataRuang
-    .filter((ruang) =>
-      ruang.roomName.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(indexOfFirstItem, indexOfLastItem);
-
+  const currentItems = dataRuang.slice(indexOfFirstItem, indexOfLastItem);
+  
+  
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -114,42 +115,47 @@ function TableDataRuang() {
             </div>
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
+            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
+              <thead className="text-left">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    No
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    NO
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nama Ruangan
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    NOMOR LANTAI
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Foto
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    RUANGAN
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aksi
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    KETERANGAN
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    AKSI
                   </th>
                 </tr>
-              </thead>
+                </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((ruang, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {index + 1}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ruang.roomName}
+                     {/* Kolom Nama */}
+                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {ruang.nomor_lantai}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ruang.fotoUrl ? (
-                        <img src={ruang.fotoUrl} alt={ruang.roomName} className="h-10 w-10 rounded-full" />
-                      ) : (
-                        "N/A"
-                      )}
+                    {/* Kolom No Telepon */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {ruang.ruangan || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
+                    </td>
+                    {/* Kolom Email */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {ruang.keterangan || '-'} {/* Tampilkan '-' jika email null atau undefined */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        to={`/rooms/edit/${ruang.id}`}
+                        to={`/dataRuang/edit/${ruang.id}`}
                         className="text-indigo-600 hover:text-indigo-900 mr-2"
                       >
                         <FontAwesomeIcon icon={faPenSquare} />

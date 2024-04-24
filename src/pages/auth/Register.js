@@ -67,7 +67,7 @@ function Register() {
         });
         // Redirecting user to login page
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/Login";
         }, 1500);
       }
     } catch (error) {

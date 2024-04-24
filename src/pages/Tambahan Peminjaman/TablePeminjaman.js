@@ -7,35 +7,33 @@ import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
 function TableTambahanPeminjaman() {
-  const [mapel, setMapel] = useState([]);
+  const [TambahanPeminjaman, setIteTambahanPeminjaman] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
-  // Mengambil data mapel dari API saat komponen dimuat
   useEffect(() => {
-    getAllMapel();
+    getAllTambahanPeminjaman();
   }, []);
 
-  // Fungsi untuk mengambil semua data mapel dari API
-  const getAllMapel = async () => {
+  const getAllTambahanPeminjaman = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/mapel`, {
+      const response = await axios.get(`http://localhost:2001/api/tambahan-peminjaman/all
+      `, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setMapel(response.data);
+      setIteTambahanPeminjaman(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  // Fungsi untuk menghapus data mapel berdasarkan ID
-  const deleteMapel = async (id) => {
+  const deleteItem = async (id) => {
     const token = localStorage.getItem("token");
 
     await Swal.fire({
@@ -50,7 +48,7 @@ function TableTambahanPeminjaman() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:8080/api/mapel/hapus/${id}`, {
+          .delete(`http://localhost:2001/api/tambahan-peminjaman/hapus/${id}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -63,7 +61,7 @@ function TableTambahanPeminjaman() {
               showConfirmButton: false,
               timer: 1500,
             });
-            getAllMapel(); // Memuat data mapel kembali setelah menghapus
+            getAllTambahanPeminjaman(); // Memuat data kembali setelah menghapus
           })
           .catch((error) => {
             console.error("Error deleting data:", error);
@@ -72,28 +70,25 @@ function TableTambahanPeminjaman() {
     });
   };
 
-  // Fungsi untuk melakukan pencarian
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  // Menghitung indeks item pada halaman saat ini
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = mapel.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = TambahanPeminjaman.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Fungsi untuk navigasi halaman
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <Sidebar page="mapel" />
+      <Sidebar page="TambahanPeminjaman" />
 
-      {/* Konten Tabel Mapel */}
+      {/* Konten Tabel */}
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Tambahan Peminjaman</h1>
-        <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg">
+        <div className="tabel-TambahanPeminjaman mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Tambahan Peminjaman
             <Link to={'/AddPeminjaman'}>
@@ -125,13 +120,13 @@ function TableTambahanPeminjaman() {
                     NO
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NAMA ITEM
+                    Nama Item
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    DESKRIPSI
+                    Deskripsi
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    JENIS
+                    Jenis
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                     Aksi
@@ -139,54 +134,47 @@ function TableTambahanPeminjaman() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {currentItems
-                  .filter((mapelData) =>
-                    mapelData.namaMapel
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  )
-                  .map((mapelData, index) => (
-                    <tr key={index}>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {mapelData.namaMapel}
-                      </td>
-                      <td className="whitespace-nowrap text-center py-2">
-                        <div className="flex items-center -space-x-4">
-                          <Link to={`/mapel/update-mapel/${mapelData.id}`}>
-                            <button
-                              className="z-20 block rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 active:bg-blue-50"
-                              type="button"
-                            >
-                              <FontAwesomeIcon
-                                icon={faPenToSquare}
-                                className="h-4 w-4"
-                              />
-                            </button>
-                          </Link>
-                          <button
-                            className="z-30 block rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
-                            type="button"
-                            onClick={() => deleteMapel(mapelData.id)}
-                          >
-                            <FontAwesomeIcon
-                              icon={faTrashAlt}
-                              className="h-4 w-4"
-                            />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
+              {currentItems
+                .filter((item) => {
+                  // Periksa apakah item tidak null atau undefined sebelum menggunakan properti nama
+                  return item && item.nama && item.nama.toLowerCase().includes(searchTerm.toLowerCase());
+                })
+                .map((item, index) => (
+                  <tr key={index}>
+                    {/* Kolom Index */}
+                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                      {index + 1}
+                    </td>
+                    {/* Kolom Nama */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {item.nama}
+                    </td>
+                    {/* Kolom Deskripsi */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {item.deskripsi || '-'} {/* Tampilkan '-' jika deskripsi null atau undefined */}
+                    </td>
+                    {/* Kolom Jenis */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {item.jenis || '-'} {/* Tampilkan '-' jika jenis null atau undefined */}
+                    </td>
+                    {/* Kolom Aksi (Tombol Hapus) */}
+                    <td className="whitespace-nowrap text-center py-2">
+                      <button
+                        className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
+                        onClick={() => deleteItem(item.id)}
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
             </table>
           </div>
           {/* Pagination */}
           <div className="flex justify-center mt-4">
             <ul className="pagination">
-              {Array(Math.ceil(mapel.length / itemsPerPage))
+              {Array(Math.ceil(TableTambahanPeminjaman.length / itemsPerPage))
                 .fill()
                 .map((_, index) => (
                   <li

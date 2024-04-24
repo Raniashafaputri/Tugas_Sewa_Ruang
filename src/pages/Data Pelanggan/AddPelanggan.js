@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function AddDataPelanggan() {
   const [nama, setNama] = useState("");
-  const [noTelepon, setNoTelepon] = useState("");
+  const [no_telepon, setNo_telepon] = useState("");
   const [email, setEmail] = useState("");
 
   const addPelanggan = async (e) => {
@@ -17,46 +17,59 @@ function AddDataPelanggan() {
     const newPelanggan = {
       pelanggan: {
         nama: nama,
-        noTelepon: noTelepon,
+        no_telepon: no_telepon,
         email: email,
       },
     };
 
+    const token = localStorage.getItem("token");
+
+
     try {
       const response = await axios.post(
         "http://localhost:2001/api/data-pelanggan/add",
-        newPelanggan
+        newPelanggan,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       Swal.fire({
         position: "center",
         icon: "success",
-        title: "Data Pelanggan berhasil ditambahkan!",
+        title: "Berhasil ditambahkan",
         showConfirmButton: false,
         timer: 1500,
       });
 
-      // Reset input fields after successful addition
-      setNama("");
-      setNoTelepon("");
-      setEmail("");
+      setTimeout(() => {
+        window.location.href = "/Data-Pelanggan";
+      }, 1500);
     } catch (error) {
-      console.error("Error adding Pelanggan:", error);
+      console.error("Error adding ruang:", error);
+      if (error.response) {
+        // Error response received from server
+        console.error("Server responded with status:", error.response.status);
+        console.error("Server responded with data:", error.response.data);
+      }
       Swal.fire({
         position: "center",
         icon: "error",
         title: "Terjadi Kesalahan!",
-        text: "Gagal menambahkan data Pelanggan. Mohon coba lagi.",
+        text: "Mohon coba lagi atau hubungi administrator",
         showConfirmButton: false,
         timer: 1500,
       });
     }
   };
 
+
   const batal = () => {
     // Reset input fields
     setNama("");
-    setNoTelepon("");
+    setNo_telepon("");
     setEmail("");
   };
 
@@ -85,15 +98,15 @@ function AddDataPelanggan() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="noTelepon" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="no_telepon" className="block text-sm font-medium text-gray-900">
                 Nomor Telepon
               </label>
               <input
                 type="text"
-                id="noTelepon"
+                id="no_telepon"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={noTelepon}
-                onChange={(e) => setNoTelepon(e.target.value)}
+                value={no_telepon}
+                onChange={(e) => setNo_telepon(e.target.value)}
                 required
               />
             </div>

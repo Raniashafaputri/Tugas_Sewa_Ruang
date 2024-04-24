@@ -29,7 +29,7 @@ function App() {
             element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
           />y
            <Route
-            path="/Data Pelanggan"
+            path="/Data-Pelanggan"
             element={isAuthenticated() ? <TablePelanggan /> : <Navigate to="/" />}
           />
             <Route

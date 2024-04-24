@@ -30,7 +30,7 @@ function Sidebar({ page }) {
           confirmButtonText: "OK",
         }).then(() => {
           // Redirect ke halaman login setelah menekan tombol OK
-          window.location.href = "/";
+          window.location.href = "/login";
         });
       }
     });
@@ -71,7 +71,7 @@ function Sidebar({ page }) {
             page === "template" ? "bg-gray-100 text-black" : ""
           }`}
         >
-          <a href="/Data Pelanggan" className="flex gap-5">
+          <a href="/Data-Pelanggan" className="flex gap-5">
             <div>
               <FontAwesomeIcon icon={faUsers} /> {/* Gunakan ikon users */}
             </div>

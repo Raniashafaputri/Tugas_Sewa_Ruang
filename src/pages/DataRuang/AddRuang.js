@@ -7,29 +7,28 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function AddRuang() {
   const [nomorLantai, setNomorLantai] = useState("");
-  const [namaRuangan, setNamaRuangan] = useState("");
-  const [fotoRuang, setFotoRuang] = useState(null);
+  const [ruangan, setRuangan] = useState("");
+  const [keterangan, setKeterangan] = useState("");
 
-  const addRoom = async (e) => {
+  const addRuang = async (e) => {
     e.preventDefault();
 
-    const newAddRuang = {
+    const newRuang = {
       nomor_lantai: nomorLantai,
-      nama_ruangan: namaRuangan,
-      foto_ruang: fotoRuang,
+      ruangan: ruangan,
+      keterangan: keterangan,
     };
 
-    // Mendapatkan token dari local storage
     const token = localStorage.getItem("token");
 
     try {
-      // Menambahkan header Authorization dengan token ke dalam permintaan
       const response = await axios.post(
         "http://localhost:2001/DataRuang/add",
-        newAddRuang,
+        newRuang,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json", // Pastikan menggunakan tipe konten yang sesuai
           },
         }
       );
@@ -43,7 +42,7 @@ function AddRuang() {
       });
 
       setTimeout(() => {
-        window.location.href = "/guru";
+        window.location.href = "/DataRuang";
       }, 1500);
     } catch (error) {
       console.error("Error adding ruang:", error);
@@ -63,22 +62,16 @@ function AddRuang() {
     }
   };
 
-  const handleFileChange = (e) => {
-    // Set the selected file for fotoRuang
-    setFotoRuang(e.target.files[0]);
-  };
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Content */}
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Tambah Data Ruang</h1>
         <div className="add-room mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl mb-5 font-medium">Tambah Data Ruang</h2>
-          <form onSubmit={addRoom}>
+          <form onSubmit={addRuang}>
             <div className="mb-4">
               <label htmlFor="nomorLantai" className="block text-sm font-medium text-gray-900">
                 Nomor Lantai
@@ -93,29 +86,28 @@ function AddRuang() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="namaRuangan" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="ruangan" className="block text-sm font-medium text-gray-900">
                 Nama Ruangan
               </label>
               <input
                 type="text"
-                id="namaRuangan"
+                id="ruangan"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={namaRuangan}
-                onChange={(e) => setNamaRuangan(e.target.value)}
+                value={ruangan}
+                onChange={(e) => setRuangan(e.target.value)}
                 required
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="fotoRuang" className="block text-sm font-medium text-gray-900">
-                Foto Ruang
+              <label htmlFor="keterangan" className="block text-sm font-medium text-gray-900">
+                Keterangan
               </label>
               <input
-                type="file"
-                id="fotoRuang"
+                type="text"
+                id="keterangan"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                accept="image/*"
-                onChange={handleFileChange}
-                required
+                value={keterangan}
+                onChange={(e) => setKeterangan(e.target.value)}
               />
             </div>
             <div className="flex justify-between mt-6">

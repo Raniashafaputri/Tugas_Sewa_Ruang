@@ -1,23 +1,64 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import {
+  faBookOpen,
+  faClipboard,
+  faSearch,
+  faUser,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
 
-function TableKelas() {
+function Dashboard() {
+  const [guru, setGuru] = useState([]);
+  const [siswa, setSiswa] = useState([]);
   const [kelas, setKelas] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [mapel, setMapel] = useState([]);
+
+  const [searchTerm1, setSearchTerm1] = useState("");
+  const [searchTerm2, setSearchTerm2] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSiswa, setCurrentPageSiswa] = useState(1); // State untuk halaman saat ini data siswa
   const [itemsPerPage] = useState(5);
 
-  const getAllKelas = async () => {
+  const getAllGuru = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/data_kelas`, {
+      const response = await axios.get(`http://localhost:8080/api/data_guru`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setGuru(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getAllSiswa = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get(`http://localhost:8080/api/data_siswa`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setSiswa(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getAllMapel = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get(`http://localhost:8080/api/mapel`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -28,170 +69,175 @@ function TableKelas() {
       console.error("Error fetching data:", error);
     }
   };
-
-  const deleteKelas = async (id) => {
+  const getAllKelas = async () => {
     const token = localStorage.getItem("token");
 
-    await Swal.fire({
-      title: "Anda yakin?",
-      text: "Yakin ingin menghapus data kelas ini?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, hapus!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .delete(`http://localhost:8080/api/data_kelas/hapus/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(() => {
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Berhasil Menghapus!!",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            getAllKelas(); // Mengambil data guru kembali setelah menghapus
-          })
-          .catch((error) => {
-            console.error("Error deleting data:", error);
-          });
-      }
-    });
+    try {
+      const response = await axios.get(`http://localhost:8080/api/data_kelas`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setMapel(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   useEffect(() => {
+    getAllMapel();
     getAllKelas();
+    getAllSiswa();
+    getAllGuru();
   }, []);
 
-  // Search function
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
+  // Search function for guru
+  const handleSearch1 = (event) => {
+    setSearchTerm1(event.target.value);
   };
 
-  // Pagination
+  // Search function for siswa
+  const handleSearch2 = (event) => {
+    setSearchTerm2(event.target.value);
+  };
+
+  // Pagination for guru
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = kelas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = guru
+    .slice(indexOfFirstItem, indexOfLastItem)
+    .filter((guruData) =>
+      guruData.nama.toLowerCase().includes(searchTerm1.toLowerCase())
+    );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Pagination for siswa
+  const indexOfLastItemSiswa = currentPageSiswa * itemsPerPage;
+  const indexOfFirstItemSiswa = indexOfLastItemSiswa - itemsPerPage;
+  const currentItemsSiswa = siswa
+    .slice(indexOfFirstItemSiswa, indexOfLastItemSiswa)
+    .filter((siswaData) =>
+      siswaData.nama_siswa.toLowerCase().includes(searchTerm2.toLowerCase())
+    );
+
+  const paginateSiswa = (pageNumber) => setCurrentPageSiswa(pageNumber);
 
   return (
     <div className="flex h-screen">
       <div>
         <Sidebar />
       </div>
-      {/* Konten Dashboard */}
       <div className="content-page max-h-screen container p-8 min-h-screen">
-        <h1 className="judul text-3xl font-semibold">Tabel Kelas</h1>
-        <div className="tabel-siswa mt-12 bg-white p-5 rounded-xl shadow-lg">
-          <h2 className="text-xl flex justify-between items-center">
-            Tabel Kelas
-            <Link to={`/kelas/add-kelas`}>
-              {" "}
-              <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
-                <FontAwesomeIcon
-                  icon={faPlus}
-                  className="h-5 w-5 text-blue-500"
-                />
+        <h1 className="judul text-3xl font-semibold">Dashboard</h1>
+        <div className="card-dashboard grid grid-cols-4 gap-4 mt-12">
+          {/* Data Guru */}
+          <div className="pl-1 h-20 bg-green-400 rounded-lg shadow-md">
+            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
+              <div className="my-auto">
+                <p className="font-bold">DATA GURU</p>
+                <p className="text-lg">{guru.length}</p>
               </div>
-            </Link>
-          </h2>
+              <div className="my-auto">
+                <FontAwesomeIcon icon={faUser} />
+              </div>
+            </div>
+          </div>
+          {/* Data Siswa */}
+          <div className="pl-1 h-20 bg-blue-500 rounded-lg shadow-md">
+            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
+              <div className="my-auto">
+                <p className="font-bold">DATA SISWA</p>
+                <p className="text-lg">{siswa.length}</p>
+              </div>
+              <div className="my-auto">
+                <FontAwesomeIcon icon={faUsers} />
+              </div>
+            </div>
+          </div>
+          {/* Data Kelas */}
+          <div className="pl-1 h-20 bg-purple-500 rounded-lg shadow-md">
+            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
+              <div className="my-auto">
+                <p className="font-bold">DATA KELAS</p>
+                <p className="text-lg">{kelas.length}</p>
+              </div>
+              <div className="my-auto">
+                <FontAwesomeIcon icon={faClipboard} />
+              </div>
+            </div>
+          </div>
+          {/* Data Mapel */}
+          <div className="pl-1 h-20 bg-yellow-400 rounded-lg shadow-md">
+            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
+              <div className="my-auto">
+                <p className="font-bold">DATA MAPEL</p>
+                <p className="text-lg">{mapel.length}</p>
+              </div>
+              <div className="my-auto">
+                <FontAwesomeIcon icon={faBookOpen} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Tabel Guru */}
+        <div className="tabel-guru mt-12 bg-white p-5 rounded-xl shadow-lg">
+          <h2 className="text-xl">Tabel guru</h2>
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
               <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
               <input
                 type="text"
-                placeholder="Cari kelas..."
-                value={searchTerm}
-                onChange={handleSearch}
+                placeholder="Cari guru..."
+                value={searchTerm1}
+                onChange={handleSearch1}
                 className="px-3 py-2 border rounded-md"
               />
             </div>
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
-            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
+            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
               <thead className="text-left">
                 <tr>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                     No
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Kelas
+                    Nama
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Nama Jurusan
+                    Jabatan
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Aksi
+                    Mapel
                   </th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-200">
-                {currentItems
-                  .filter((kelasData) =>
-                    kelasData.nama_kelas
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  )
-                  .map((kelasData, index) => (
-                    <tr key={index}>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {kelasData.nama_kelas}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {kelasData.nama_jurusan}
-                      </td>
-
-                      <td className="whitespace-nowrap text-ceter py-2">
-                        <div className="flex items-center -space-x-4">
-                          <Link to={`/kelas/update-kelas/${kelasData.id}`}>
-                            <button
-                              className="z-20 block rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 active:bg-blue-50"
-                              type="button"
-                            >
-                              {/* Pencil Icon */}
-                              <span className="relative inline-block">
-                                <FontAwesomeIcon
-                                  icon={faPenToSquare}
-                                  className="h-4 w-4"
-                                />
-                              </span>
-                            </button>
-                          </Link>
-
-                          <button
-                            className="z-30 block rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
-                            type="button"
-                          >
-                            <span className="relative inline-block">
-                              <FontAwesomeIcon
-                                icon={faTrashCan}
-                                className="h-4 w-4"
-                                onClick={() => deleteKelas(kelasData.id)}
-                              />
-                            </span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                {currentItems.map((guruData, index) => (
+                  <tr key={index}>
+                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                      {indexOfFirstItem + index + 1}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {guruData.nama}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {guruData.jabatan}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {guruData.mapelModel && guruData.mapelModel.namaMapel}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
           <div className="flex justify-center mt-4">
             <ul className="pagination">
-              {Array(Math.ceil(kelas.length / itemsPerPage))
+              {Array(Math.ceil(guru.length / itemsPerPage))
                 .fill()
                 .map((_, index) => (
                   <li
@@ -201,7 +247,83 @@ function TableKelas() {
                     }`}
                   >
                     <button
-                      onClick={() => setCurrentPage(index + 1)}
+                      onClick={() => paginate(index + 1)}
+                      className="page-link"
+                    >
+                      {index + 1}
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+        {/* Tabel Siswa */}
+        <div className="tabel-siswa mt-12 bg-white p-5 rounded-xl shadow-lg">
+          <h2 className="text-xl">Tabel siswa</h2>
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex items-center">
+              <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Cari siswa..."
+                value={searchTerm2}
+                onChange={handleSearch2}
+                className="px-3 py-2 border rounded-md"
+              />
+            </div>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
+            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+              <thead className="text-left">
+                <tr>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    No
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Nama
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Jurusan
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Kelas
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200">
+                {currentItemsSiswa.map((siswaData, index) => (
+                  <tr key={index}>
+                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                      {indexOfFirstItemSiswa + index + 1}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {siswaData.nama_siswa}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {siswaData.kelasModel.nama_jurusan}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {siswaData.kelasModel.nama_kelas}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center mt-4">
+            <ul className="pagination">
+              {Array(Math.ceil(siswa.length / itemsPerPage))
+                .fill()
+                .map((_, index) => (
+                  <li
+                    key={index}
+                    className={`page-item ${
+                      currentPageSiswa === index + 1 ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      onClick={() => paginateSiswa(index + 1)}
                       className="page-link"
                     >
                       {index + 1}
@@ -216,4 +338,4 @@ function TableKelas() {
   );
 }
 
-export default TableKelas;
+export default Dashboard;

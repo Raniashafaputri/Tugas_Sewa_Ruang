@@ -16,6 +16,50 @@ function TableDataPelanggan() {
     getAllPelanggan();
   }, []);
 
+  const addPelanggan = async () => {
+  const token = localStorage.getItem("token");
+
+  const newPelanggan = {
+    nama: "Nama Pelanggan Baru",
+    noTelepon: "08123456789",
+    email: "email@example.com",
+  };
+
+  try {
+    const response = await axios.post(
+      "http://localhost:2001/api/data-pelanggan/add",
+      newPelanggan,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Setelah berhasil menambahkan, panggil getAllPelanggan() untuk memperbarui data
+    getAllPelanggan();
+
+    Swal.fire({
+      position: "center",
+      icon: "success",
+      title: "Data berhasil ditambahkan",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  } catch (error) {
+    console.error("Error adding data pelanggan:", error);
+    Swal.fire({
+      position: "center",
+      icon: "error",
+      title: "Gagal menambahkan data",
+      text: "Terjadi kesalahan saat menambahkan data. Silakan coba lagi.",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+};
+
+
   const getAllPelanggan = async () => {
     const token = localStorage.getItem("token");
 
@@ -135,42 +179,50 @@ function TableDataPelanggan() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {currentItems
-                  .filter((pelangganData) =>
-                    pelangganData.nama.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((pelangganData, index) => (
-                    <tr key={index}>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.nama}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.noTelepon}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {pelangganData.email}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2">
-                        <div className="flex items-center space-x-4">
-                          <Link to={`/pelanggan/update/${pelangganData.id}`}>
-                            <FontAwesomeIcon
-                              icon={faPenSquare}
-                              className="h-5 w-5 text-blue-500 cursor-pointer"
-                            />
-                          </Link>
+              {currentItems
+                .filter((pelangganData) => {
+                  // Periksa apakah properti nama tidak null atau undefined sebelum menggunakan toLowerCase()
+                  return pelangganData.nama && pelangganData.nama.toLowerCase().includes(searchTerm.toLowerCase());
+                })
+                .map((pelangganData, index) => (
+                  <tr key={index}>
+                    {/* Kolom Index */}
+                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                      {index + 1}
+                    </td>
+                    {/* Kolom Nama */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {pelangganData.nama}
+                    </td>
+                    {/* Kolom No Telepon */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {pelangganData.noTelepon || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
+                    </td>
+                    {/* Kolom Email */}
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {pelangganData.email || '-'} {/* Tampilkan '-' jika email null atau undefined */}
+                    </td>
+                    {/* Kolom Aksi (Link Edit dan Tombol Hapus) */}
+                    <td className="whitespace-nowrap px-4 py-2">
+                      <div className="flex items-center space-x-4">
+                        {/* Link untuk mengedit */}
+                        <Link to={`/pelanggan/update/${pelangganData.id}`}>
                           <FontAwesomeIcon
-                            icon={faTrashAlt}
-                            className="h-5 w-5 text-red-500 cursor-pointer"
-                            onClick={() => deletePelanggan(pelangganData.id)}
+                            icon={faPenSquare}
+                            className="h-5 w-5 text-blue-500 cursor-pointer"
                           />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
+                        </Link>
+                        {/* Tombol untuk menghapus (dengan onClick handler) */}
+                        <FontAwesomeIcon
+                          icon={faTrashAlt}
+                          className="h-5 w-5 text-red-500 cursor-pointer"
+                          onClick={() => deletePelanggan(pelangganData.id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
             </table>
           </div>
           <div className="flex justify-center mt-4">
