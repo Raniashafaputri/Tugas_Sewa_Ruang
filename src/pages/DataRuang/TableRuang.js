@@ -12,6 +12,10 @@ function TableDataRuang() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
+  useEffect(() => {
+    getAllRuang();
+  }, []);
+
   const getAllRuang = async () => {
     const token = localStorage.getItem("token");
 
@@ -30,7 +34,7 @@ function TableDataRuang() {
 
   const deleteRuang = async (id) => {
     const token = localStorage.getItem("token");
-  
+
     try {
       const result = await Swal.fire({
         title: "Anda yakin?",
@@ -42,14 +46,14 @@ function TableDataRuang() {
         confirmButtonText: "Ya, hapus!",
         cancelButtonText: "Batal",
       });
-  
+
       if (result.isConfirmed) {
         await axios.delete(`http://localhost:2001/DataRuang/hapus/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         Swal.fire({
           position: "center",
           icon: "success",
@@ -57,7 +61,7 @@ function TableDataRuang() {
           showConfirmButton: false,
           timer: 1500,
         });
-  
+
         // Perbarui data ruangan setelah berhasil menghapus
         getAllRuang();
       }
@@ -73,17 +77,25 @@ function TableDataRuang() {
       });
     }
   };
-  
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
 
+
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = dataRuang.slice(indexOfFirstItem, indexOfLastItem);
-  
-  
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const filteredData = dataRuang.filter((ruang) =>
+    ruang.ruangan.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > Math.ceil(filteredData.length / itemsPerPage)) return;
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="flex h-screen">
@@ -171,28 +183,6 @@ function TableDataRuang() {
                 ))}
               </tbody>
             </table>
-          </div>
-          {/* Pagination */}
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(dataRuang.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => paginate(index + 1)}
-                      className="page-link"
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
           </div>
         </div>
       </div>

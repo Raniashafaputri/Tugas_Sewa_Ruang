@@ -6,7 +6,7 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function AddRuang() {
-  const [nomorLantai, setNomorLantai] = useState("");
+  const [nomor_lantai, setnomor_lantai] = useState("");
   const [ruangan, setRuangan] = useState("");
   const [keterangan, setKeterangan] = useState("");
 
@@ -14,7 +14,7 @@ function AddRuang() {
     e.preventDefault();
 
     const newRuang = {
-      nomor_lantai: nomorLantai,
+      nomor_lantai: nomor_lantai,
       ruangan: ruangan,
       keterangan: keterangan,
     };
@@ -28,7 +28,7 @@ function AddRuang() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json", // Pastikan menggunakan tipe konten yang sesuai
+            "Content-Type": "application/json",
           },
         }
       );
@@ -46,22 +46,33 @@ function AddRuang() {
       }, 1500);
     } catch (error) {
       console.error("Error adding ruang:", error);
+
       if (error.response) {
-        // Error response received from server
+        // Server memberikan respons dengan status error
         console.error("Server responded with status:", error.response.status);
         console.error("Server responded with data:", error.response.data);
+
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Terjadi Kesalahan!",
+          text: error.response.data.message || "Mohon coba lagi atau hubungi administrator",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else {
+        // Error tanpa respons dari server
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Terjadi Kesalahan!",
+          text: "Gagal menambahkan ruang. Mohon coba lagi atau hubungi administrator",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
-      Swal.fire({
-        position: "center",
-        icon: "error",
-        title: "Terjadi Kesalahan!",
-        text: "Mohon coba lagi atau hubungi administrator",
-        showConfirmButton: false,
-        timer: 1500,
-      });
     }
   };
-
 
   return (
     <div className="flex h-screen">
@@ -73,15 +84,15 @@ function AddRuang() {
           <h2 className="text-xl mb-5 font-medium">Tambah Data Ruang</h2>
           <form onSubmit={addRuang}>
             <div className="mb-4">
-              <label htmlFor="nomorLantai" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="Nomor_Lantai" className="block text-sm font-medium text-gray-900">
                 Nomor Lantai
               </label>
               <input
                 type="text"
-                id="nomorLantai"
+                id="Nomor_Lantai"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={nomorLantai}
-                onChange={(e) => setNomorLantai(e.target.value)}
+                value={nomor_lantai}
+                onChange={(e) => setnomor_lantai(e.target.value)}
                 required
               />
             </div>

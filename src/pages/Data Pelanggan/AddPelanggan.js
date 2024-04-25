@@ -8,22 +8,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function AddDataPelanggan() {
   const [nama, setNama] = useState("");
-  const [no_telepon, setNo_telepon] = useState("");
+  const [noTelepon, setNoTelepon] = useState("");
   const [email, setEmail] = useState("");
 
   const addPelanggan = async (e) => {
     e.preventDefault();
 
     const newPelanggan = {
-      pelanggan: {
-        nama: nama,
-        no_telepon: no_telepon,
-        email: email,
-      },
+      nama: nama,
+      noTelepon: noTelepon,
+      email: email,
     };
 
     const token = localStorage.getItem("token");
-
 
     try {
       const response = await axios.post(
@@ -48,12 +45,8 @@ function AddDataPelanggan() {
         window.location.href = "/Data-Pelanggan";
       }, 1500);
     } catch (error) {
-      console.error("Error adding ruang:", error);
-      if (error.response) {
-        // Error response received from server
-        console.error("Server responded with status:", error.response.status);
-        console.error("Server responded with data:", error.response.data);
-      }
+      console.error("Error adding pelanggan:", error);
+
       Swal.fire({
         position: "center",
         icon: "error",
@@ -65,11 +58,10 @@ function AddDataPelanggan() {
     }
   };
 
-
   const batal = () => {
     // Reset input fields
     setNama("");
-    setNo_telepon("");
+    setNoTelepon("");
     setEmail("");
   };
 
@@ -98,15 +90,15 @@ function AddDataPelanggan() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="no_telepon" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="noTelepon" className="block text-sm font-medium text-gray-900">
                 Nomor Telepon
               </label>
               <input
                 type="text"
-                id="no_telepon"
+                id="noTelepon"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={no_telepon}
-                onChange={(e) => setNo_telepon(e.target.value)}
+                value={noTelepon}
+                onChange={(e) => setNoTelepon(e.target.value)}
                 required
               />
             </div>

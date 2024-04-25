@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBookOpen, faTrashAlt,faPlus, faClipboard, faSearch, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBookOpen, faTrashAlt, faPlus, faClipboard, faSearch, faUsers } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -16,18 +16,17 @@ function Dashboard() {
   useEffect(() => {
     getAllRuang();
     getAllPelanggan();
+    getAllReport();
   }, []);
 
   const getAllRuang = async () => {
     const token = localStorage.getItem("token");
-
     try {
       const response = await axios.get(`http://localhost:2001/DataRuang/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       setDataRuang(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -37,14 +36,14 @@ function Dashboard() {
   const getAllPelanggan = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get("http://localhost:2001/api/data-pelanggan/all", {
+      const response = await axios.get(`http://localhost:2001/api/data-pelanggan/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setPelanggan(response.data);
     } catch (error) {
-      console.error("Error fetching customer data:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -67,32 +66,23 @@ function Dashboard() {
     setCurrentPage(1); // Reset current page when searching
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPelanggan = pelanggan.slice(indexOfFirstItem, indexOfLastItem);
-  const currentReportData = reportData.slice(indexOfFirstItem, indexOfLastItem);
-  const currentItems = reportData.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const deleteReport = async (id) => {
-    try {
-      await axios.delete(`http://localhost:2001/api/report/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      getAllReport(); // Refresh data after deletion
-    } catch (error) {
-      console.error("Error deleting report:", error);
-    }
-  };
+  const filteredData = pelanggan.filter((pelangganData) => {
+    const nama = pelangganData.nama ? pelangganData.nama.toLowerCase() : '';
+    const noTelepon = pelangganData.noTelepon ? pelangganData.noTelepon.toLowerCase() : '';
+    const email = pelangganData.email ? pelangganData.email.toLowerCase() : '';
+    return (
+      nama.includes(searchTerm.toLowerCase()) ||
+      noTelepon.includes(searchTerm.toLowerCase()) ||
+      email.includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="flex h-screen">
       <Sidebar />
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Dashboard</h1>
+
         {/* Card Section */}
         <div className="card-dashboard grid grid-cols-4 gap-4 mt-12">
           {/* Data Ruangan */}
@@ -144,95 +134,10 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Tabel Ruangan */}
-        <div className="tabel-ruang mt-12 bg-white p-5 rounded-xl shadow-lg">
-          <h2 className="text-xl flex justify-between items-center">
-            Data Ruang
-          </h2>
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex items-center">
-              <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Cari Ruangan..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="px-3 py-2 border rounded-md"
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
-            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
-              <thead className="text-left">
-                <tr>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NO
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NOMOR LANTAI
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    RUANGAN
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    KETERANGAN
-                  </th>
-                </tr>
-                </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.map((ruang, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {index + 1}
-                    </td>
-                     {/* Kolom Nama */}
-                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {ruang.nomor_lantai}
-                    </td>
-                    {/* Kolom No Telepon */}
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {ruang.ruangan || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
-                    </td>
-                    {/* Kolom Email */}
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {ruang.keterangan || '-'} {/* Tampilkan '-' jika email null atau undefined */}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* Pagination */}
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(dataRuang.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
-                  >
-                    <button
-                      onClick={() => paginate(index + 1)}
-                      className="page-link"
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
-        </div>
-
         {/* Tabel Pelanggan */}
         <div className="tabel-pelanggan mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Data Pelanggan
-          </h2>
-          <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
               <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
               <input
@@ -243,7 +148,7 @@ function Dashboard() {
                 className="px-3 py-2 border rounded-md"
               />
             </div>
-          </div>
+          </h2>
           <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
             <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
               <thead className="text-left">
@@ -263,58 +168,32 @@ function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-              {currentItems
-                .filter((pelangganData) => {
-                  // Periksa apakah properti nama tidak null atau undefined sebelum menggunakan toLowerCase()
-                  return pelangganData.nama && pelangganData.nama.toLowerCase().includes(searchTerm.toLowerCase());
-                })
-                .map((pelangganData, index) => (
+                {filteredData.map((pelangganData, index) => (
                   <tr key={index}>
-                    {/* Kolom Index */}
                     <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                       {index + 1}
                     </td>
-                    {/* Kolom Nama */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {pelangganData.nama}
                     </td>
-                    {/* Kolom No Telepon */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {pelangganData.noTelepon || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
+                      {pelangganData.noTelepon || '-'}
                     </td>
-                    {/* Kolom Email */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {pelangganData.email || '-'} {/* Tampilkan '-' jika email null atau undefined */}
+                      {pelangganData.email || '-'}
                     </td>
-                    {/* Kolom Aksi (Link Edit dan Tombol Hapus) */}
                     <td className="whitespace-nowrap px-4 py-2">
                       <div className="flex items-center space-x-4">
+                        {/* Tambahkan tombol aksi di sini */}
                       </div>
                     </td>
                   </tr>
                 ))}
-            </tbody>
+              </tbody>
             </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(pelanggan.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
-                  >
-                    <button onClick={() => paginate(index + 1)} className="page-link">
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

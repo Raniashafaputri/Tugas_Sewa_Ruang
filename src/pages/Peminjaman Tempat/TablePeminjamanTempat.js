@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenSquare, faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -12,7 +12,6 @@ function TablePeminjamanTempat() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
- 
   useEffect(() => {
     getAllPeminjaman();
   }, []);
@@ -35,7 +34,7 @@ function TablePeminjamanTempat() {
 
   const deletePeminjaman = async (id) => {
     const token = localStorage.getItem("token");
-
+  
     try {
       const result = await Swal.fire({
         title: "Anda yakin?",
@@ -47,14 +46,14 @@ function TablePeminjamanTempat() {
         confirmButtonText: "Ya, hapus!",
         cancelButtonText: "Batal",
       });
-
+  
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:2001/api/data-peminjaman/hapus`, {
+        await axios.delete(`http://localhost:2001/api/data-peminjaman/hapus/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+  
         Swal.fire({
           position: "center",
           icon: "success",
@@ -62,8 +61,8 @@ function TablePeminjamanTempat() {
           showConfirmButton: false,
           timer: 1500,
         });
-
-        getAllPeminjaman();
+  
+        getAllPeminjaman(); // Ambil ulang data setelah penghapusan
       }
     } catch (error) {
       console.error("Error deleting data:", error);
@@ -82,12 +81,19 @@ function TablePeminjamanTempat() {
     setSearchTerm(event.target.value);
   };
 
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = peminjaman.slice(indexOfFirstItem, indexOfLastItem);
+  const filteredData = peminjaman.filter((item) =>
+    item.ruangan.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  const paginate = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > Math.ceil(filteredData.length / itemsPerPage)) return;
+    setCurrentPage(pageNumber);
+  };
+  
   return (
     <div className="flex h-screen">
       <Sidebar page="peminjaman" />
@@ -119,84 +125,47 @@ function TablePeminjamanTempat() {
               <thead className="text-left">
                 <tr>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    NO
-                  </th>
+                  NO</th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Nama Peminjam
-                  </th>
+                  Nama</th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Ruangan
-                  </th>
+                  Ruangan</th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Tanggal Peminjaman
-                  </th>
+                  Kode Booking</th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Aksi
-                  </th>
+                  Tambahan</th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Total Booking</th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-            {currentItems
-              .filter((item) => {
-                // Periksa apakah namaPeminjam tidak null atau undefined sebelum menggunakan toLowerCase()
-                return item.namaPeminjam && item.namaPeminjam.toLowerCase().includes(searchTerm.toLowerCase());
-              })
-              .map((item, index) => (
-                <tr key={index}>
-                  {/* Kolom No */}
-                  <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    {index + 1}
-                  </td>
-                  {/* Kolom Nama Peminjam */}
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.namaPeminjam}
-                  </td>
-                  {/* Kolom lainnya (contoh: Ruangan, Tanggal Peminjaman, Aksi) */}
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.ruangan}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.tanggalPeminjaman}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2">
-                    <div className="flex items-center space-x-4">
-                      {/* Link untuk mengedit */}
-                      <Link to={`/peminjaman/update/${item.id}`}>
-                        <FontAwesomeIcon
-                          icon={faPenSquare}
-                          className="h-5 w-5 text-blue-500 cursor-pointer"
-                        />
-                      </Link>
-                      {/* Tombol untuk menghapus (dengan onClick handler) */}
-                      <FontAwesomeIcon
-                        icon={faTrashAlt}
-                        className="h-5 w-5 text-red-500 cursor-pointer"
-                        onClick={() => deletePeminjaman(item.id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-            </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(peminjaman.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
-                  >
-                    <button onClick={() => paginate(index + 1)} className="page-link">
-                      {index + 1}
-                    </button>
-                  </li>
+                {currentItems.map((data, index) => (
+                  <tr key={index}>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {index + 1}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.nama}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.ruangan}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.kode_booking}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.tambahan}</td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.total_booking}</td>
+                    <td className="whitespace-nowrap text-center py-2">
+                      <button
+                        className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
+                        onClick={() => deletePeminjaman(data.id)}
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-            </ul>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

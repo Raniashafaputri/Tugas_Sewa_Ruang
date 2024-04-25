@@ -87,11 +87,6 @@ function TableReportSewa() {
         <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg">
           <h2 className="text-xl flex justify-between items-center">
             Report Sewa
-            <Link to={`/mapel/add-mapel`}>
-              <div className="rounded-lg shadow-xl px-3 py-3 bg-slate-100">
-                <FontAwesomeIcon icon={faPlus} className="h-5 w-5 text-blue-500" />
-              </div>
-            </Link>
           </h2>
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">

@@ -1,341 +1,216 @@
-import React, { useEffect, useState } from "react";
-import Sidebar from "../../components/Sidebar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBookOpen,
-  faClipboard,
-  faSearch,
-  faUser,
-  faUsers,
-} from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import React, { useEffect, useState } from 'react'
+import { FaAngleLeft, FaAngleRight, FaPenSquare, FaPlus, FaSearch, FaTrashAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import Sidebar from '../../components/Sidebar';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
-function Dashboard() {
-  const [guru, setGuru] = useState([]);
-  const [siswa, setSiswa] = useState([]);
-  const [kelas, setKelas] = useState([]);
-  const [mapel, setMapel] = useState([]);
+const DataRuang = () => {
+    const [ruangan, setRuangan] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
 
-  const [searchTerm1, setSearchTerm1] = useState("");
-  const [searchTerm2, setSearchTerm2] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageSiswa, setCurrentPageSiswa] = useState(1); // State untuk halaman saat ini data siswa
-  const [itemsPerPage] = useState(5);
+    const getAllDataRuangan = async () => {
+        const token = localStorage.getItem("token");
+   
+        try {
+            const response = await axios.get(
+                `http://localhost:7000/api/data_ruang/all`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+   
+            setRuangan(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
 
-  const getAllGuru = async () => {
-    const token = localStorage.getItem("token");
+    // Pagination
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = ruangan.filter((dataRuang) =>
+    dataRuang.tempat.toLowerCase().includes(searchTerm.toLowerCase())
+    ).slice(indexOfFirstItem, indexOfLastItem);
 
-    try {
-      const response = await axios.get(`http://localhost:8080/api/data_guru`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const paginate = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > Math.ceil(ruangan.length / itemsPerPage)) return;
+    setCurrentPage(pageNumber);
+    };
 
-      setGuru(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+    // Search 
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        setCurrentPage(1); 
+    };
 
-  const getAllSiswa = async () => {
-    const token = localStorage.getItem("token");
+    const deleteRuangan = async (id) => {
+        const token = localStorage.getItem("token");
+    
+        await Swal.fire({
+          title: "Anda yakin?",
+          text: "Yakin ingin menghapus data ini?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Ya, hapus!",
+          cancelButtonText: "Batal",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            axios
+              .delete(`http://localhost:7000/api/data_ruang/delete/${id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
+              .then(() => {
+                Swal.fire({
+                  position: "center",
+                  icon: "success",
+                  title: "Berhasil Menghapus!!",
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+                getAllDataRuangan();
+              })
+              .catch((error) => {
+                console.error("Error deleting data:", error);
+              });
+          }
+        });
+    };
 
-    try {
-      const response = await axios.get(`http://localhost:8080/api/data_siswa`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setSiswa(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const getAllMapel = async () => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await axios.get(`http://localhost:8080/api/mapel`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setKelas(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  const getAllKelas = async () => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await axios.get(`http://localhost:8080/api/data_kelas`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setMapel(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  useEffect(() => {
-    getAllMapel();
-    getAllKelas();
-    getAllSiswa();
-    getAllGuru();
-  }, []);
-
-  // Search function for guru
-  const handleSearch1 = (event) => {
-    setSearchTerm1(event.target.value);
-  };
-
-  // Search function for siswa
-  const handleSearch2 = (event) => {
-    setSearchTerm2(event.target.value);
-  };
-
-  // Pagination for guru
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = guru
-    .slice(indexOfFirstItem, indexOfLastItem)
-    .filter((guruData) =>
-      guruData.nama.toLowerCase().includes(searchTerm1.toLowerCase())
-    );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Pagination for siswa
-  const indexOfLastItemSiswa = currentPageSiswa * itemsPerPage;
-  const indexOfFirstItemSiswa = indexOfLastItemSiswa - itemsPerPage;
-  const currentItemsSiswa = siswa
-    .slice(indexOfFirstItemSiswa, indexOfLastItemSiswa)
-    .filter((siswaData) =>
-      siswaData.nama_siswa.toLowerCase().includes(searchTerm2.toLowerCase())
-    );
-
-  const paginateSiswa = (pageNumber) => setCurrentPageSiswa(pageNumber);
+    useEffect(() => {
+        getAllDataRuangan();
+    }, []);
 
   return (
-    <div className="flex h-screen">
-      <div>
-        <Sidebar />
-      </div>
-      <div className="content-page max-h-screen container p-8 min-h-screen">
-        <h1 className="judul text-3xl font-semibold">Dashboard</h1>
-        <div className="card-dashboard grid grid-cols-4 gap-4 mt-12">
-          {/* Data Guru */}
-          <div className="pl-1 h-20 bg-green-400 rounded-lg shadow-md">
-            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
-              <div className="my-auto">
-                <p className="font-bold">DATA GURU</p>
-                <p className="text-lg">{guru.length}</p>
-              </div>
-              <div className="my-auto">
-                <FontAwesomeIcon icon={faUser} />
-              </div>
-            </div>
-          </div>
-          {/* Data Siswa */}
-          <div className="pl-1 h-20 bg-blue-500 rounded-lg shadow-md">
-            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
-              <div className="my-auto">
-                <p className="font-bold">DATA SISWA</p>
-                <p className="text-lg">{siswa.length}</p>
-              </div>
-              <div className="my-auto">
-                <FontAwesomeIcon icon={faUsers} />
-              </div>
-            </div>
-          </div>
-          {/* Data Kelas */}
-          <div className="pl-1 h-20 bg-purple-500 rounded-lg shadow-md">
-            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
-              <div className="my-auto">
-                <p className="font-bold">DATA KELAS</p>
-                <p className="text-lg">{kelas.length}</p>
-              </div>
-              <div className="my-auto">
-                <FontAwesomeIcon icon={faClipboard} />
-              </div>
-            </div>
-          </div>
-          {/* Data Mapel */}
-          <div className="pl-1 h-20 bg-yellow-400 rounded-lg shadow-md">
-            <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
-              <div className="my-auto">
-                <p className="font-bold">DATA MAPEL</p>
-                <p className="text-lg">{mapel.length}</p>
-              </div>
-              <div className="my-auto">
-                <FontAwesomeIcon icon={faBookOpen} />
-              </div>
-            </div>
-          </div>
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-100">
+        <div className="w-1/5">
+            <Sidebar />
         </div>
-        {/* Tabel Guru */}
-        <div className="tabel-guru mt-12 bg-white p-5 rounded-xl shadow-lg">
-          <h2 className="text-xl">Tabel guru</h2>
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex items-center">
-              <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Cari guru..."
-                value={searchTerm1}
-                onChange={handleSearch1}
-                className="px-3 py-2 border rounded-md"
-              />
+        <div className="flex-1 max-h-screen overflow-y-auto container p-8">
+            <h5 className="mb-2 text-3x1 font-bold tracking-tight text-gray-600 dark:text-white text-center">
+                DATA TEMPAT
+            </h5>
+            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 relative">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        <FaSearch className="mr-2 text-gray-500" />
+                        <input
+                            type="text"
+                            placeholder=""
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="px-3 py-2 border rounded-md"
+                        />
+                    </div>
+                    <Link to={`/data_ruangan/tambah_ruangan`}>
+                        <button className="z-20 block rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
+                            <FaPlus className="z-20" title="Plus" />
+                        </button>
+                    </Link>
+                </div>
+                <hr className="my-4 border-gray-300 dark:border-gray-600" />
+                <table className="w-full table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead className="text-left text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" className="px-6 py-3">
+                                No
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Tempat
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Nomor Ruangan
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Keterangan
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Aksi
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {currentItems
+                            .filter((dataRuang) => 
+                                dataRuang.tempat
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                            ).map((dataRuang, index) => (
+                            <tr 
+                                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                key={index}
+                            >
+                                <td
+                                    scope="row"
+                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                >
+                                    {indexOfFirstItem + index + 1}
+                                </td>
+                                <td
+                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                >
+                                    {dataRuang.tempat}
+                                </td>
+                                <td className="px-6 py-4">{dataRuang.nomor_ruangan}</td>
+                                <td className="px-6 py-4">{dataRuang.keterangan}</td>
+                                <td className="whitespace-nowrap text-center py-2">
+                                    <div className="flex items-center hover:space-x-1">
+                                        <Link to={`/data_ruangan/ubah_ruangan/${dataRuang.id}`}>
+                                        <button className="z-20 block rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50"
+                                        >
+                                            <FaPenSquare className="z-20" title="Edit" />
+                                        </button>
+                                        </Link>
+                                        <button className="z-30 block rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
+                                        onClick={() => deleteRuangan(dataRuang.id)}
+                                        >
+                                            <FaTrashAlt className="z-30" title="Delete" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-          </div>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
-            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-              <thead className="text-left">
-                <tr>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    No
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Nama
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Jabatan
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Mapel
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-200">
-                {currentItems.map((guruData, index) => (
-                  <tr key={index}>
-                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      {indexOfFirstItem + index + 1}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {guruData.nama}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {guruData.jabatan}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {guruData.mapelModel && guruData.mapelModel.namaMapel}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(guru.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPage === index + 1 ? "active" : ""
+            <div className="flex justify-between items-center mt-4">
+                <div>
+                <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 mr-2 rounded-md bg-blue-500 text-white ${
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
                     }`}
-                  >
-                    <button
-                      onClick={() => paginate(index + 1)}
-                      className="page-link"
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </div>
-        {/* Tabel Siswa */}
-        <div className="tabel-siswa mt-12 bg-white p-5 rounded-xl shadow-lg">
-          <h2 className="text-xl">Tabel siswa</h2>
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex items-center">
-              <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Cari siswa..."
-                value={searchTerm2}
-                onChange={handleSearch2}
-                className="px-3 py-2 border rounded-md"
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
-            <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-              <thead className="text-left">
-                <tr>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    No
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Nama
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Jurusan
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    Kelas
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-200">
-                {currentItemsSiswa.map((siswaData, index) => (
-                  <tr key={index}>
-                    <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      {indexOfFirstItemSiswa + index + 1}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {siswaData.nama_siswa}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {siswaData.kelasModel.nama_jurusan}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {siswaData.kelasModel.nama_kelas}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(siswa.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${
-                      currentPageSiswa === index + 1 ? "active" : ""
+                >
+                    <FaAngleLeft className="inline-block" />
+                </button>
+                <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === Math.ceil(ruangan.length / itemsPerPage)}
+                    className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
+                    currentPage === Math.ceil(ruangan.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
                     }`}
-                  >
-                    <button
-                      onClick={() => paginateSiswa(index + 1)}
-                      className="page-link"
-                    >
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
+                >
+                    <FaAngleRight className="inline-block" />
+                </button>
+                </div>
+                <div>
+                <p className="text-gray-600 text-sm">
+                    Page {currentPage} of {Math.ceil(ruangan.length / itemsPerPage)}
+                </p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  );
+  )
 }
 
-export default Dashboard;
+export default DataRuang

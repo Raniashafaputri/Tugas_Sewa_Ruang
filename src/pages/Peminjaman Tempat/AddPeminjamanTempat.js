@@ -2,28 +2,40 @@ import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
 
 function AddPeminjamanTempat() {
-  const [namaPeminjam, setNamaPeminjam] = useState("");
+  const [nama, setNama] = useState("");
   const [ruangan, setRuangan] = useState("");
-  const [tanggalPeminjaman, setTanggalPeminjaman] = useState("");
+  const [kodeBooking, setKodeBooking] = useState("");
+  const [tambahan, setTambahan] = useState("");
+  const [totalBooking, setTotalBooking] = useState("");
+  const [jumlahOrang, setJumlahOrang] = useState(1); // Default jumlah orang adalah 1
 
   const addPeminjamanTempat = async (e) => {
     e.preventDefault();
 
     const newPeminjaman = {
-      namaPeminjam,
+      nama,
       ruangan,
-      tanggalPeminjaman,
+      kode_booking: kodeBooking,
+      tambahan,
+      total_booking: totalBooking,
+      jumlah_orang: jumlahOrang,
     };
+
+    const token = localStorage.getItem("token");
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/peminjaman",
-        newPeminjaman
+        "http://localhost:2001/api/data-peminjaman/add",
+        newPeminjaman,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       Swal.fire({
@@ -35,9 +47,12 @@ function AddPeminjamanTempat() {
       });
 
       // Reset input fields after successful addition
-      setNamaPeminjam("");
+      setNama("");
       setRuangan("");
-      setTanggalPeminjaman("");
+      setKodeBooking("");
+      setTambahan("");
+      setTotalBooking("");
+      setJumlahOrang(1); // Reset jumlah orang ke nilai default
     } catch (error) {
       console.error("Error adding Peminjaman Tempat:", error);
       Swal.fire({
@@ -63,15 +78,15 @@ function AddPeminjamanTempat() {
           <h2 className="text-xl mb-5 font-medium">Tambah Peminjaman Tempat</h2>
           <form onSubmit={addPeminjamanTempat}>
             <div className="mb-4">
-              <label htmlFor="namaPeminjam" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="nama" className="block text-sm font-medium text-gray-900">
                 Nama Peminjam
               </label>
               <input
                 type="text"
-                id="namaPeminjam"
+                id="nama"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={namaPeminjam}
-                onChange={(e) => setNamaPeminjam(e.target.value)}
+                value={nama}
+                onChange={(e) => setNama(e.target.value)}
                 required
               />
             </div>
@@ -89,15 +104,41 @@ function AddPeminjamanTempat() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="tanggalPeminjaman" className="block text-sm font-medium text-gray-900">
-                Tanggal Peminjaman
+              <label htmlFor="kodeBooking" className="block text-sm font-medium text-gray-900">
+                Kode Booking
               </label>
               <input
-                type="date"
-                id="tanggalPeminjaman"
+                type="text"
+                id="kodeBooking"
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                value={tanggalPeminjaman}
-                onChange={(e) => setTanggalPeminjaman(e.target.value)}
+                value={kodeBooking}
+                onChange={(e) => setKodeBooking(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="tambahan" className="block text-sm font-medium text-gray-900">
+                Tambahan
+              </label>
+              <input
+                type="text"
+                id="tambahan"
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                value={tambahan}
+                onChange={(e) => setTambahan(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="totalBooking" className="block text-sm font-medium text-gray-900">
+                Total Booking
+              </label>
+              <input
+                type="text"
+                id="totalBooking"
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                value={totalBooking}
+                onChange={(e) => setTotalBooking(e.target.value)}
                 required
               />
             </div>

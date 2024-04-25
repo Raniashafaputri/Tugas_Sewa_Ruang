@@ -16,50 +16,6 @@ function TableDataPelanggan() {
     getAllPelanggan();
   }, []);
 
-  const addPelanggan = async () => {
-  const token = localStorage.getItem("token");
-
-  const newPelanggan = {
-    nama: "Nama Pelanggan Baru",
-    noTelepon: "08123456789",
-    email: "email@example.com",
-  };
-
-  try {
-    const response = await axios.post(
-      "http://localhost:2001/api/data-pelanggan/add",
-      newPelanggan,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    // Setelah berhasil menambahkan, panggil getAllPelanggan() untuk memperbarui data
-    getAllPelanggan();
-
-    Swal.fire({
-      position: "center",
-      icon: "success",
-      title: "Data berhasil ditambahkan",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  } catch (error) {
-    console.error("Error adding data pelanggan:", error);
-    Swal.fire({
-      position: "center",
-      icon: "error",
-      title: "Gagal menambahkan data",
-      text: "Terjadi kesalahan saat menambahkan data. Silakan coba lagi.",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  }
-};
-
-
   const getAllPelanggan = async () => {
     const token = localStorage.getItem("token");
 
@@ -92,12 +48,12 @@ function TableDataPelanggan() {
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:2001/api/data-pelanggan/hapus`, {
+        await axios.delete(`http://localhost:2001/api/data-pelanggan/hapus/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         Swal.fire({
           position: "center",
           icon: "success",
@@ -106,7 +62,7 @@ function TableDataPelanggan() {
           timer: 1500,
         });
 
-        getAllPelanggan();
+        getAllPelanggan(); // Perbarui data setelah penghapusan berhasil
       }
     } catch (error) {
       console.error("Error deleting data:", error);
@@ -123,13 +79,19 @@ function TableDataPelanggan() {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = pelanggan.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const filteredData = pelanggan.filter((pelangganData) => {
+    const nama = pelangganData.nama ? pelangganData.nama.toLowerCase() : '';
+    const noTelepon = pelangganData.noTelepon ? pelangganData.noTelepon.toLowerCase() : '';
+    const email = pelangganData.email ? pelangganData.email.toLowerCase() : '';
+  
+    return nama.includes(searchTerm.toLowerCase()) ||
+           noTelepon.includes(searchTerm.toLowerCase()) ||
+           email.includes(searchTerm.toLowerCase());
+  });
+  
 
   return (
     <div className="flex h-screen">
@@ -179,40 +141,28 @@ function TableDataPelanggan() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-              {currentItems
-                .filter((pelangganData) => {
-                  // Periksa apakah properti nama tidak null atau undefined sebelum menggunakan toLowerCase()
-                  return pelangganData.nama && pelangganData.nama.toLowerCase().includes(searchTerm.toLowerCase());
-                })
-                .map((pelangganData, index) => (
+                {filteredData.map((pelangganData, index) => (
                   <tr key={index}>
-                    {/* Kolom Index */}
                     <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                       {index + 1}
                     </td>
-                    {/* Kolom Nama */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {pelangganData.nama}
                     </td>
-                    {/* Kolom No Telepon */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {pelangganData.noTelepon || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
+                      {pelangganData.noTelepon || '-'}
                     </td>
-                    {/* Kolom Email */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {pelangganData.email || '-'} {/* Tampilkan '-' jika email null atau undefined */}
+                      {pelangganData.email || '-'}
                     </td>
-                    {/* Kolom Aksi (Link Edit dan Tombol Hapus) */}
                     <td className="whitespace-nowrap px-4 py-2">
                       <div className="flex items-center space-x-4">
-                        {/* Link untuk mengedit */}
                         <Link to={`/pelanggan/update/${pelangganData.id}`}>
                           <FontAwesomeIcon
                             icon={faPenSquare}
                             className="h-5 w-5 text-blue-500 cursor-pointer"
                           />
                         </Link>
-                        {/* Tombol untuk menghapus (dengan onClick handler) */}
                         <FontAwesomeIcon
                           icon={faTrashAlt}
                           className="h-5 w-5 text-red-500 cursor-pointer"
@@ -222,24 +172,8 @@ function TableDataPelanggan() {
                     </td>
                   </tr>
                 ))}
-            </tbody>
+              </tbody>
             </table>
-          </div>
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(pelanggan.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
-                  >
-                    <button onClick={() => paginate(index + 1)} className="page-link">
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
           </div>
         </div>
       </div>
