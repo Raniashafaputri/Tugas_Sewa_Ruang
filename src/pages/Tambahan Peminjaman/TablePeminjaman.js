@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faTrashAlt,
+   faPlus,
+    faSearch,
+    faAngleLeft ,
+    faAngleRight,
+    faPenSquare
+  } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
 function TableTambahanPeminjaman() {
-  const [tambahanPeminjaman, setTambahanPeminjaman] = useState([]);
+  const [TambahanPeminjaman, setTambahanPeminjaman] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
@@ -82,17 +89,23 @@ function TableTambahanPeminjaman() {
     setCurrentPage(1);
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const filteredData = tambahanPeminjaman.filter((item) =>
-    item.nama && item.nama.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-
   const paginate = (pageNumber) => {
-    if (pageNumber < 1 || pageNumber > Math.ceil(filteredData.length / itemsPerPage)) return;
     setCurrentPage(pageNumber);
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentItems = TambahanPeminjaman.slice(indexOfFirstItem, indexOfLastItem);
+
+const filteredData = currentItems.filter((item) => {
+  const nama = item.nama ? item.nama.toLowerCase() : '';
+  const noTelepon = item.noTelepon ? item.noTelepon.toLowerCase() : '';
+  const email = item.email ? item.email.toLowerCase() : '';
+
+  return nama.includes(searchTerm.toLowerCase()) ||
+         noTelepon.includes(searchTerm.toLowerCase()) ||
+         email.includes(searchTerm.toLowerCase());
+});
 
   return (
     <div className="flex h-screen">
@@ -145,15 +158,15 @@ function TableTambahanPeminjaman() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {currentItems.map((item, index) => (
+              {currentItems.map((item, index) => (
                   <tr key={index}>
                     {/* Kolom Index */}
                     <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                       {index + 1}
                     </td>
-                    {/* Kolom Nama */}
+                    {/* Kolom Nama Item */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {item.nama}
+                      {item.nama_item}
                     </td>
                     {/* Kolom Deskripsi */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
@@ -165,34 +178,49 @@ function TableTambahanPeminjaman() {
                     </td>
                     {/* Kolom Aksi (Tombol Hapus) */}
                     <td className="whitespace-nowrap text-center py-2">
-                      <button
-                        className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
-                        onClick={() => deletePeminjaman(item.id)}
-                      >
-                        <FontAwesomeIcon icon={faTrashAlt} className="h-4 w-4" />
-                      </button>
-                    </td>
+                      <div className="flex items-center hover:space-x-1">
+                        <Link to={`/Tambahan Peminjaman/UpdateTambahanPeminjaman/${item.id}`}>
+                                <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
+                            <FontAwesomeIcon icon={faPenSquare} title="UpdatePelanggan" />
+                          </button>
+                        </Link>
+                        <button className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50" onClick={() => deletePeminjaman(TambahanPeminjaman.id)}>
+                          <FontAwesomeIcon icon={faTrashAlt} title="  deletePelanggan(TambahanPeminjaman.id)}" />
+                        </button>
+                      </div>
+                      </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           {/* Pagination */}
-          <div className="flex justify-center mt-4">
-            <ul className="pagination">
-              {Array(Math.ceil(filteredData.length / itemsPerPage))
-                .fill()
-                .map((_, index) => (
-                  <li
-                    key={index}
-                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
-                  >
-                    <button onClick={() => paginate(index + 1)} className="page-link">
-                      {index + 1}
-                    </button>
-                  </li>
-                ))}
-            </ul>
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 mr-2 rounded-md bg-blue-500 text-white ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleLeft} className="inline-block" />
+              </button>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === Math.ceil(TambahanPeminjaman.length / itemsPerPage)}
+                className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
+                  currentPage === Math.ceil(TambahanPeminjaman.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleRight} className="inline-block" />
+              </button>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">
+                Page {currentPage} of {Math.ceil(TambahanPeminjaman.length / itemsPerPage)}
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -4,11 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookOpen, faTrashAlt, faPlus, faClipboard, faSearch, faUsers } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import TableTambahanPeminjaman from "../Tambahan Peminjaman/TablePeminjaman";
 
 function Dashboard() {
   const [dataRuang, setDataRuang] = useState([]);
   const [pelanggan, setPelanggan] = useState([]);
   const [reportData, setReportData] = useState([]);
+  const [TambahanPeminjaman, setTambahanPeminjaman] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
@@ -16,6 +18,7 @@ function Dashboard() {
   useEffect(() => {
     getAllRuang();
     getAllPelanggan();
+    getAllTambahanPeminjaman();
     getAllReport();
   }, []);
 
@@ -58,6 +61,21 @@ function Dashboard() {
       setReportData(response.data);
     } catch (error) {
       console.error("Error fetching report data:", error);
+    }
+  };
+  const getAllTambahanPeminjaman = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get(`http://localhost:2001/api/tambahan-peminjaman/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setTambahanPeminjaman(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -109,11 +127,12 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          Item Tambahan
+        
           <div className="pl-1 h-20 bg-purple-500 rounded-lg shadow-md">
             <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
               <div className="my-auto">
-                <p className="font-bold">ITEM TAMBAHAN</p>
+                <p className="font-bold">MENU TAMBAHAN</p>
+                <p className="text-lg">{TambahanPeminjaman.length}</p>
               </div>
               <div className="my-auto">
                 <FontAwesomeIcon icon={faClipboard} />

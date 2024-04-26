@@ -5,11 +5,11 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const UpdateReport = () => {
+const UpdateTambahanPeminjaman = () => {
     const { id } = useParams();
-    const [nama, setNama] = useState("");
-    const [ruangan, setRuangan] = useState("");
-    const [tambahan, setTambahan] = useState("");
+    const [nama_item, setNama_item] = useState("");
+    const [deskripsi, setDeskripsi] = useState("");
+    const [jenis, setJenis] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -21,18 +21,18 @@ const UpdateReport = () => {
                     },
                 };
 
-                const response = await axios.get(`http://localhost:2001/api/report/${id}`, config);
-                const reportData = response.data;
+                const response = await axios.get(`http://localhost:2001/api/tambahan-peminjaman/${id}`, config);
+                const dataTambahanPeminjaman = response.data;
 
-                setNama(reportData.nama || "");
-                setRuangan(reportData.ruangan || "");
-                setTambahan(reportData.tambahan || "");
+                setNama_item(dataTambahanPeminjaman.nama_item || "");
+                setDeskripsi(dataTambahanPeminjaman.deskripsi || "");
+                setJenis(dataTambahanPeminjaman.jenis || "");
             } catch (error) {
                 console.error("Terjadi kesalahan:", error);
                 Swal.fire({
                     icon: "error",
                     title: "Terjadi Kesalahan",
-                    text: `Gagal memuat data laporan: ${error.message}`,
+                    text: `Gagal memuat data tambahan peminjaman: ${error.message}`,
                 });
             }
         };
@@ -43,20 +43,20 @@ const UpdateReport = () => {
     const submitActionHandler = async (event) => {
         event.preventDefault();
 
-        try {
-            const token = localStorage.getItem("token");
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
+        const token = localStorage.getItem("token");
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
 
+        try {
             await axios.put(
-                `http://localhost:2001/api/report/${id}`,
+                `http://localhost:2001/api/tambahan-peminjaman/${id}`,
                 {
-                    nama,
-                    ruangan,
-                    tambahan,
+                    nama_item,
+                    deskripsi,
+                    jenis,
                 },
                 config
             );
@@ -68,9 +68,11 @@ const UpdateReport = () => {
                 timer: 1500,
             });
 
-            window.location.href = "/report";
+            // Redirect ke halaman "/Data-pelanggan"
+            window.location.href = "/Tambahan Peminjaman";
         } catch (error) {
             console.error("Terjadi kesalahan:", error);
+            // Tampilkan pesan kesalahan menggunakan library Swal atau alert
             Swal.fire({
                 icon: "error",
                 title: "Terjadi Kesalahan",
@@ -80,58 +82,56 @@ const UpdateReport = () => {
     };
 
     const cancelHandler = () => {
-        window.location.href = "/ReportSewa";
+        window.location.href = "/Tambahan Peminjaman";
     };
 
     return (
         <div className="flex h-screen">
             <Sidebar />
             <div className="content-page max-h-screen container p-8 min-h-screen">
-                <h1 className="text-3xl font-semibold mb-8">Update Laporan</h1>
+                <h1 className="text-3xl font-semibold mb-8">Update Tambahan Peminjaman</h1>
                 <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <p className="text-lg font-medium mb-4">Update Informasi Laporan</p>
+                    <p className="text-lg font-medium mb-4">Update Tambahan Peminjaman</p>
                     <form onSubmit={submitActionHandler}>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="mb-4">
-                                <label htmlFor="nama" className="block text-sm font-medium text-gray-900">
-                                    Nama
+                                <label htmlFor="namaItem" className="block text-sm font-medium text-gray-900">
+                                    Nama Item
                                 </label>
                                 <input
                                     type="text"
-                                    id="nama"
+                                    id="namaItem"
                                     className="form-input w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500"
-                                    placeholder="Masukkan Nama"
-                                    value={nama}
-                                    onChange={(e) => setNama(e.target.value)}
+                                    placeholder="Masukkan Nama Item"
+                                    value={nama_item}
+                                    onChange={(e) => setNama_item(e.target.value)}
                                     required
                                 />
                             </div>
                             <div className="mb-4">
-                                <label htmlFor="ruangan" className="block text-sm font-medium text-gray-900">
-                                    Ruangan
+                                <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-900">
+                                    Deskripsi
                                 </label>
                                 <input
                                     type="text"
-                                    id="ruangan"
+                                    id="deskripsi"
                                     className="form-input w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500"
-                                    placeholder="Masukkan Ruangan"
-                                    value={ruangan}
-                                    onChange={(e) => setRuangan(e.target.value)}
-                                    required
+                                    placeholder="Masukkan Deskripsi"
+                                    value={deskripsi}
+                                    onChange={(e) => setDeskripsi(e.target.value)}
                                 />
                             </div>
                             <div className="mb-4">
-                                <label htmlFor="tambahan" className="block text-sm font-medium text-gray-900">
-                                    Tambahan
+                                <label htmlFor="jenis" className="block text-sm font-medium text-gray-900">
+                                    Jenis
                                 </label>
                                 <input
                                     type="text"
-                                    id="tambahan"
+                                    id="jenis"
                                     className="form-input w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500"
-                                    placeholder="Masukkan Tambahan"
-                                    value={tambahan}
-                                    onChange={(e) => setTambahan(e.target.value)}
-                                    required
+                                    placeholder="Masukkan Jenis"
+                                    value={jenis}
+                                    onChange={(e) => setJenis(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -157,4 +157,4 @@ const UpdateReport = () => {
     );
 };
 
-export default UpdateReport;
+export default UpdateTambahanPeminjaman;

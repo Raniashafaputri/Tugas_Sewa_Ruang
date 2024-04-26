@@ -9,6 +9,7 @@ import AddPelanggan from "./pages/Data Pelanggan/AddPelanggan";
 import UpdatePelanggan from "./pages/Data Pelanggan/UpdatePelanggan";
 import TablePeminjaman from "./pages/Tambahan Peminjaman/TablePeminjaman";
 import AddPeminjaman from "./pages/Tambahan Peminjaman/AddPeminjaman";
+import UpdateTambahanPeminjaman from "./pages/Tambahan Peminjaman/UpdateTambahanPeminjaman";
 import TableSewa from "./pages/ReportSewa/TableSewa";
 import TableRuang from "./pages/DataRuang/TableRuang";
 import AddRuang from "./pages/DataRuang/AddRuang";
@@ -51,6 +52,13 @@ function App() {
             path="/AddPeminjaman"
             element={isAuthenticated() ? <AddPeminjaman /> : <Navigate to="/" />}
           />
+          <Route
+            path="/UpdateTambahanPeminjaman"
+            element={isAuthenticated() ? <UpdateTambahanPeminjaman /> : <Navigate to="/" />}
+          />
+           <Route path="/Tambahan Peminjaman/UpdateTambahanPeminjaman/:id" 
+            element={<UpdateTambahanPeminjaman />}
+            />
             <Route
             path="/ReportSewa"
             element={isAuthenticated() ? <TableSewa /> : <Navigate to="/" />}

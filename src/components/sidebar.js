@@ -83,7 +83,7 @@ function Sidebar({ page }) {
             <div>Data Pelanggan</div>
           </a>
         </li>
-        {/* <li
+         <li
           className={`cursor-pointer text-[19px] px-3 pt-2 pb-1 rounded-lg mt-4 hover:bg-gray-100 hover:text-black ${
             page === "template" ? "bg-gray-100 text-black" : ""
           }`}
@@ -91,11 +91,10 @@ function Sidebar({ page }) {
           <a href="/Tambahan Peminjaman" className="flex gap-5">
             <div>
             <FontAwesomeIcon icon={faSquarePlus} /> {/* Gunakan ikon users */}
-            {/* </div>
+             </div>
             <div>Menu Tambahan</div>
           </a>
-        </li> */} 
-        
+        </li> 
         <li
           className={`cursor-pointer text-[19px] px-3 pt-2 pb-1 rounded-lg mt-4 hover:bg-gray-100 hover:text-black ${
             page === "template" ? "bg-gray-100 text-black" : ""
