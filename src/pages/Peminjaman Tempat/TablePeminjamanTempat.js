@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faTrashAlt, faPlus, faSearch, faPenSquare, faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -34,7 +34,7 @@ function TablePeminjamanTempat() {
 
   const deletePeminjaman = async (id) => {
     const token = localStorage.getItem("token");
-  
+
     try {
       const result = await Swal.fire({
         title: "Anda yakin?",
@@ -46,14 +46,14 @@ function TablePeminjamanTempat() {
         confirmButtonText: "Ya, hapus!",
         cancelButtonText: "Batal",
       });
-  
+
       if (result.isConfirmed) {
         await axios.delete(`http://localhost:2001/api/data-peminjaman/hapus/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         Swal.fire({
           position: "center",
           icon: "success",
@@ -61,7 +61,7 @@ function TablePeminjamanTempat() {
           showConfirmButton: false,
           timer: 1500,
         });
-  
+
         getAllPeminjaman(); // Ambil ulang data setelah penghapusan
       }
     } catch (error) {
@@ -79,6 +79,7 @@ function TablePeminjamanTempat() {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
 
   // Pagination
@@ -93,7 +94,7 @@ function TablePeminjamanTempat() {
     if (pageNumber < 1 || pageNumber > Math.ceil(filteredData.length / itemsPerPage)) return;
     setCurrentPage(pageNumber);
   };
-  
+
   return (
     <div className="flex h-screen">
       <Sidebar page="peminjaman" />
@@ -125,47 +126,96 @@ function TablePeminjamanTempat() {
               <thead className="text-left">
                 <tr>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  NO</th>
+                    NO
+                  </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  Nama</th>
+                    Nama
+                  </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  Ruangan</th>
+                    Ruangan
+                  </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  Kode Booking</th>
+                    Kode Booking
+                  </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  Tambahan</th>
+                    Tambahan
+                  </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                  Total Booking</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Aksi</th>
+                    Total Booking
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentItems.map((data, index) => (
                   <tr key={index}>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {index + 1}</td>
+                      {index + 1}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {data.nama}</td>
+                      {data.nama}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {data.ruangan}</td>
+                      {data.ruangan}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {data.kode_booking}</td>
+                      {data.kode_booking}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {data.tambahan}</td>
+                      {data.tambahan}
+                    </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {data.total_booking}</td>
+                      {data.total_booking}
+                    </td>
                     <td className="whitespace-nowrap text-center py-2">
-                      <button
-                        className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 active:bg-red-50"
-                        onClick={() => deletePeminjaman(data.id)}
-                      >
-                        <FontAwesomeIcon icon={faTrashAlt} className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center hover:space-x-1">
+                        <Link to={`/Peminjaman Tempat/UpdateDataPeminjaman/${data.id}`}>
+                          <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50" title="Edit">
+                            <FontAwesomeIcon icon={faPenSquare} />
+                          </button>
+                        </Link>
+                        <button
+                          className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
+                          onClick={() => deletePeminjaman(data.id)}
+                          title="Delete"
+                        >
+                          <FontAwesomeIcon icon={faTrashAlt} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 mr-2 rounded-md bg-blue-500 text-white ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleLeft} className="inline-block" />
+              </button>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
+                className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
+                  currentPage === Math.ceil(filteredData.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleRight} className="inline-block" />
+              </button>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">
+                Page {currentPage} of {Math.ceil(filteredData.length / itemsPerPage)}
+              </p>
+            </div>
           </div>
         </div>
       </div>

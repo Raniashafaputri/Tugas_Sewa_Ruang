@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenSquare, faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPenSquare, faTrashAlt, faPlus, faSearch, faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -82,7 +82,15 @@ function TableDataPelanggan() {
     setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
 
-  const filteredData = pelanggan.filter((pelangganData) => {
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = pelanggan.slice(indexOfFirstItem, indexOfLastItem);
+
+  const filteredData = currentItems.filter((pelangganData) => {
     const nama = pelangganData.nama ? pelangganData.nama.toLowerCase() : '';
     const noTelepon = pelangganData.noTelepon ? pelangganData.noTelepon.toLowerCase() : '';
     const email = pelangganData.email ? pelangganData.email.toLowerCase() : '';
@@ -91,7 +99,6 @@ function TableDataPelanggan() {
            noTelepon.includes(searchTerm.toLowerCase()) ||
            email.includes(searchTerm.toLowerCase());
   });
-  
 
   return (
     <div className="flex h-screen">
@@ -144,7 +151,7 @@ function TableDataPelanggan() {
                 {filteredData.map((pelangganData, index) => (
                   <tr key={index}>
                     <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      {index + 1}
+                      {indexOfFirstItem + index + 1}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {pelangganData.nama}
@@ -156,24 +163,48 @@ function TableDataPelanggan() {
                       {pelangganData.email || '-'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2">
-                      <div className="flex items-center space-x-4">
-                        <Link to={`/pelanggan/update/${pelangganData.id}`}>
-                          <FontAwesomeIcon
-                            icon={faPenSquare}
-                            className="h-5 w-5 text-blue-500 cursor-pointer"
-                          />
+                      <div className="flex items-center hover:space-x-1">
+                        <Link to={`/Data-pelanggan/Updatepelanggan/${pelangganData.id}`}>
+                                <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
+                            <FontAwesomeIcon icon={faPenSquare} title="UpdatePelanggan" />
+                          </button>
                         </Link>
-                        <FontAwesomeIcon
-                          icon={faTrashAlt}
-                          className="h-5 w-5 text-red-500 cursor-pointer"
-                          onClick={() => deletePelanggan(pelangganData.id)}
-                        />
+                        <button className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50" onClick={() => deletePelanggan(pelangganData.id)}>
+                          <FontAwesomeIcon icon={faTrashAlt} title="  deletePelanggan(pelangganData.id)}" />
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 mr-2 rounded-md bg-blue-500 text-white ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleLeft} className="inline-block" />
+              </button>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === Math.ceil(pelanggan.length / itemsPerPage)}
+                className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
+                  currentPage === Math.ceil(pelanggan.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleRight} className="inline-block" />
+              </button>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">
+                Page {currentPage} of {Math.ceil(pelanggan.length / itemsPerPage)}
+              </p>
+            </div>
           </div>
         </div>
       </div>

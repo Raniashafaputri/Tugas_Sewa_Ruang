@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenSquare, faTrashAlt, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPenSquare, faTrashAlt, faPlus, faSearch, faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -83,7 +83,6 @@ function TableDataRuang() {
     setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
 
-
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -119,7 +118,7 @@ function TableDataRuang() {
               <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
               <input
                 type="text"
-                placeholder="Cari Ruangan..."
+                placeholder="Cari Data..."
                 value={searchTerm}
                 onChange={handleSearch}
                 className="px-3 py-2 border rounded-md"
@@ -146,43 +145,68 @@ function TableDataRuang() {
                     AKSI
                   </th>
                 </tr>
-                </thead>
+              </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((ruang, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {index + 1}
+                      {indexOfFirstItem + index + 1}
                     </td>
-                     {/* Kolom Nama */}
-                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {ruang.nomor_lantai}
                     </td>
-                    {/* Kolom No Telepon */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {ruang.ruangan || '-'} {/* Tampilkan '-' jika noTelepon null atau undefined */}
+                      {ruang.ruangan || '-'}
                     </td>
-                    {/* Kolom Email */}
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {ruang.keterangan || '-'} {/* Tampilkan '-' jika email null atau undefined */}
+                      {ruang.keterangan || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        to={`/dataRuang/edit/${ruang.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 mr-2"
-                      >
-                        <FontAwesomeIcon icon={faPenSquare} />
-                      </Link>
-                      <button
-                        onClick={() => deleteRuang(ruang.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <FontAwesomeIcon icon={faTrashAlt} />
-                      </button>
+                    <td className="whitespace-nowrap px-4 py-2">
+                      <div className="flex items-center hover:space-x-1">
+                        <Link to={`/DataRuang/UpdateRuang/${ruang.id}`}>
+                          <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
+                            <FontAwesomeIcon icon={faPenSquare} title="Edit" />
+                          </button>
+                        </Link>
+                        <button
+                          className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
+                          onClick={() => deleteRuang(ruang.id)}
+                        >
+                          <FontAwesomeIcon icon={faTrashAlt} title="Delete" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <div>
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 mr-2 rounded-md bg-blue-500 text-white ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleLeft} className="inline-block" />
+              </button>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
+                className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
+                  currentPage === Math.ceil(filteredData.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faAngleRight} className="inline-block" />
+              </button>
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm">
+                Page {currentPage} of {Math.ceil(filteredData.length / itemsPerPage)}
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -109,7 +109,7 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          {/* Item Tambahan */}
+          Item Tambahan
           <div className="pl-1 h-20 bg-purple-500 rounded-lg shadow-md">
             <div className="flex w-full h-full py-2 px-4 bg-white rounded-lg justify-between">
               <div className="my-auto">

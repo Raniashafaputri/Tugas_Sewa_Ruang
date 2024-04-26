@@ -6,13 +6,17 @@ import Register from "./pages/auth/Register";
 import Login from "./pages/auth/login";
 import TablePelanggan from "./pages/Data Pelanggan/TablePelanggan";
 import AddPelanggan from "./pages/Data Pelanggan/AddPelanggan";
+import UpdatePelanggan from "./pages/Data Pelanggan/UpdatePelanggan";
 import TablePeminjaman from "./pages/Tambahan Peminjaman/TablePeminjaman";
 import AddPeminjaman from "./pages/Tambahan Peminjaman/AddPeminjaman";
 import TableSewa from "./pages/ReportSewa/TableSewa";
 import TableRuang from "./pages/DataRuang/TableRuang";
 import AddRuang from "./pages/DataRuang/AddRuang";
+import UpdateRuang from "./pages/DataRuang/UpdateRuang"
+import UpdateReport from "./pages/ReportSewa/UpdateReport";
 import TablePeminjamanTempat from "./pages/Peminjaman Tempat/TablePeminjamanTempat";
 import AddPeminjamanTempat from "./pages/Peminjaman Tempat/AddPeminjamanTempat";
+import UpdateDataPeminjaman from "./pages/Peminjaman Tempat/UpdateDataPeminjaman";
 import Dashboard from "./pages/dashboard/Dashboard";
 import { isAuthenticated } from "./utils/auth";
 // import "./App.css";
@@ -27,7 +31,7 @@ function App() {
           <Route
             path="/dashboard"
             element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
-          />y
+          />
            <Route
             path="/Data-Pelanggan"
             element={isAuthenticated() ? <TablePelanggan /> : <Navigate to="/" />}
@@ -35,6 +39,9 @@ function App() {
             <Route
             path="/AddPelanggan"
             element={isAuthenticated() ? <AddPelanggan /> : <Navigate to="/" />}
+          />
+            <Route path="/Data-pelanggan/Updatepelanggan/:id" 
+            element={<UpdatePelanggan />}
           />
           <Route
             path="/Tambahan Peminjaman"
@@ -48,6 +55,9 @@ function App() {
             path="/ReportSewa"
             element={isAuthenticated() ? <TableSewa /> : <Navigate to="/" />}
           />
+           <Route path="/ReportSewa/UpdateReport/:id" 
+            element={<UpdateReport />}
+            />
            <Route
             path="/DataRuang"
             element={isAuthenticated() ? <TableRuang /> : <Navigate to="/" />}
@@ -56,6 +66,9 @@ function App() {
             path="/AddRuang"
             element={isAuthenticated() ? <AddRuang /> : <Navigate to="/" />}
           />
+            <Route path="/DataRuang/UpdateRuang/:id" 
+            element={<UpdateRuang />}
+            />
              <Route
             path="/Peminjaman Tempat"
             element={isAuthenticated() ? <TablePeminjamanTempat /> : <Navigate to="/" />}
@@ -64,6 +77,9 @@ function App() {
             path="/AddPeminjamanTempat"
             element={isAuthenticated() ? <AddPeminjamanTempat /> : <Navigate to="/" />}
           />
+          <Route path="/Peminjaman Tempat/UpdateDataPeminjaman/:id" 
+            element={<UpdateDataPeminjaman />}
+            />
         </Routes>
       </BrowserRouter>
     </div>

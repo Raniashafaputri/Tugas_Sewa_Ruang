@@ -46,25 +46,38 @@ function AddPeminjamanTempat() {
         timer: 1500,
       });
 
-      // Reset input fields after successful addition
-      setNama("");
-      setRuangan("");
-      setKodeBooking("");
-      setTambahan("");
-      setTotalBooking("");
-      setJumlahOrang(1); // Reset jumlah orang ke nilai default
+      setTimeout(() => {
+        window.location.href = "/Peminjaman Tempat";
+      }, 1500);
     } catch (error) {
-      console.error("Error adding Peminjaman Tempat:", error);
+      console.error("Error adding ruang:", error);
+
+      if (error.response) {
+        // Server memberikan respons dengan status error
+        console.error("Server responded with status:", error.response.status);
+        console.error("Server responded with data:", error.response.data);
+
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Terjadi Kesalahan!",
+          text: error.response.data.message || "Mohon coba lagi atau hubungi administrator",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+    } else {
+      // Error tanpa respons dari server
       Swal.fire({
         position: "center",
         icon: "error",
         title: "Terjadi Kesalahan!",
-        text: "Gagal menambahkan peminjaman tempat. Mohon coba lagi.",
+        text: "Gagal menambahkan ruang. Mohon coba lagi atau hubungi administrator",
         showConfirmButton: false,
         timer: 1500,
       });
     }
-  };
+  }
+};
 
   return (
     <div className="flex h-screen">

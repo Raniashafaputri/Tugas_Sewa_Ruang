@@ -42,7 +42,7 @@ function AddMenuItem() {
       });
 
       setTimeout(() => {
-        window.location.href = "/Tambahan%20Peminjaman";
+        window.location.href = "/Tambahan Peminjaman";
       }, 1500);
     } catch (error) {
       console.error("Error adding Peminjaman:", error);

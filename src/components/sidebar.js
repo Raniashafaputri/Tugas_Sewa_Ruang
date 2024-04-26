@@ -1,13 +1,21 @@
-// Import ikon yang diperlukan
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faCity, faHome, faBook, faClipboard, faArrowRight ,faSquarePlus , faMap ,faAddressBook} from "@fortawesome/free-solid-svg-icons";
+import {
+  faUsers,
+  faCity,
+  faHome,
+  faBook,
+  faClipboard,
+  faArrowRight,
+  faSquarePlus,
+  faMap,
+  faAddressBook,
+} from "@fortawesome/free-solid-svg-icons";
 
 import Swal from "sweetalert2";
 
 function Sidebar({ page }) {
   function logout() {
-    // Tampilkan SweetAlert2 konfirmasi sebelum logout
     Swal.fire({
       title: "Logout",
       text: "Apakah Anda yakin ingin logout?",
@@ -19,9 +27,7 @@ function Sidebar({ page }) {
       cancelButtonText: "Batal",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Hapus item dari local storage saat logout
         localStorage.removeItem("token");
-        // Tampilkan pesan berhasil logout
         Swal.fire({
           title: "Logout Berhasil",
           text: "Anda telah berhasil logout.",
@@ -29,7 +35,6 @@ function Sidebar({ page }) {
           confirmButtonColor: "#3085d6",
           confirmButtonText: "OK",
         }).then(() => {
-          // Redirect ke halaman login setelah menekan tombol OK
           window.location.href = "/login";
         });
       }
@@ -78,7 +83,7 @@ function Sidebar({ page }) {
             <div>Data Pelanggan</div>
           </a>
         </li>
-        <li
+        {/* <li
           className={`cursor-pointer text-[19px] px-3 pt-2 pb-1 rounded-lg mt-4 hover:bg-gray-100 hover:text-black ${
             page === "template" ? "bg-gray-100 text-black" : ""
           }`}
@@ -86,10 +91,11 @@ function Sidebar({ page }) {
           <a href="/Tambahan Peminjaman" className="flex gap-5">
             <div>
             <FontAwesomeIcon icon={faSquarePlus} /> {/* Gunakan ikon users */}
-            </div>
+            {/* </div>
             <div>Menu Tambahan</div>
           </a>
-        </li>
+        </li> */} 
+        
         <li
           className={`cursor-pointer text-[19px] px-3 pt-2 pb-1 rounded-lg mt-4 hover:bg-gray-100 hover:text-black ${
             page === "template" ? "bg-gray-100 text-black" : ""
