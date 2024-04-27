@@ -41,7 +41,7 @@ function TableTambahanPeminjaman() {
 
   const deletePeminjaman = async (id) => {
     const token = localStorage.getItem("token");
-
+  
     try {
       const result = await Swal.fire({
         title: "Anda yakin?",
@@ -53,14 +53,14 @@ function TableTambahanPeminjaman() {
         confirmButtonText: "Ya, hapus!",
         cancelButtonText: "Batal",
       });
-
+  
       if (result.isConfirmed) {
         await axios.delete(`http://localhost:2001/api/tambahan-peminjaman/hapus/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         Swal.fire({
           position: "center",
           icon: "success",
@@ -68,8 +68,9 @@ function TableTambahanPeminjaman() {
           showConfirmButton: false,
           timer: 1500,
         });
-
-        getAllTambahanPeminjaman(); // Memuat data kembali setelah menghapus
+  
+        // Memuat kembali data setelah menghapus
+        getAllTambahanPeminjaman(); // atau bisa juga filteredData
       }
     } catch (error) {
       console.error("Error deleting data:", error);
@@ -83,6 +84,7 @@ function TableTambahanPeminjaman() {
       });
     }
   };
+  
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -184,9 +186,10 @@ const filteredData = currentItems.filter((item) => {
                             <FontAwesomeIcon icon={faPenSquare} title="UpdatePelanggan" />
                           </button>
                         </Link>
-                        <button className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50" onClick={() => deletePeminjaman(TambahanPeminjaman.id)}>
-                          <FontAwesomeIcon icon={faTrashAlt} title="  deletePelanggan(TambahanPeminjaman.id)}" />
-                        </button>
+                      <button className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50" onClick={() => deletePeminjaman(item.id)}>
+                        <FontAwesomeIcon icon={faTrashAlt} title="Delete Peminjaman" />
+                      </button>
+
                       </div>
                       </td>
                   </tr>

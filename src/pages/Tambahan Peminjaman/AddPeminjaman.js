@@ -19,6 +19,8 @@ function AddMenuItem() {
       jenis: jenis,
     };
 
+    
+
     const token = localStorage.getItem("token");
 
     try {

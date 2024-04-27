@@ -79,9 +79,10 @@ function TableDataRuang() {
   };
 
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.target.value.toLowerCase());
     setCurrentPage(1); // Reset halaman saat melakukan pencarian
   };
+  
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
