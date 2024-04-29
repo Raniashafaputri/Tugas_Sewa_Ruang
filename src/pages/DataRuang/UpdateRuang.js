@@ -81,7 +81,7 @@ const UpdatePelanggan = () => {
             // Jika permintaan berhasil, tampilkan pesan sukses
             Swal.fire({
                 icon: "success",
-                title: "Edit Berhasil",
+                title: "Update Berhasil",
                 showConfirmButton: false,
                 timer: 1500,
             });

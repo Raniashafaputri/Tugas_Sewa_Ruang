@@ -147,6 +147,7 @@ function TableDataRuang() {
                   </th>
                 </tr>
               </thead>
+              {/* untuk pemanggilan data*/}
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentItems.map((ruang, index) => (
                   <tr key={index}>
@@ -163,6 +164,7 @@ function TableDataRuang() {
                       {ruang.keterangan || '-'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2">
+                      {/* untuk pemanggilan Update dan delete */}
                       <div className="flex items-center hover:space-x-1">
                         <Link to={`/DataRuang/UpdateRuang/${ruang.id}`}>
                           <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
@@ -182,6 +184,7 @@ function TableDataRuang() {
               </tbody>
             </table>
           </div>
+       {/* pemanggilan paginate */}
           <div className="flex justify-between items-center mt-4">
             <div>
               <button

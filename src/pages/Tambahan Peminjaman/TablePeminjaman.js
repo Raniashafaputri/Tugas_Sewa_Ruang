@@ -159,6 +159,7 @@ const filteredData = currentItems.filter((item) => {
                   </th>
                 </tr>
               </thead>
+                   {/* untuk pemanggilan data*/}
               <tbody className="divide-y divide-gray-200">
               {currentItems.map((item, index) => (
                   <tr key={index}>

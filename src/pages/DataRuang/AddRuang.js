@@ -98,7 +98,7 @@ function AddRuang() {
             </div>
             <div className="mb-4">
               <label htmlFor="ruangan" className="block text-sm font-medium text-gray-900">
-                Nama Ruangan
+               Ruangan
               </label>
               <input
                 type="text"

@@ -42,7 +42,7 @@ function Sidebar({ page }) {
   }
 
   return (
-    <div className="sidebar max-h-screen min-h-screen bg-[#40A2D8] min-w-[20%] text-white flex flex-col w-[270px]">
+    <div className="sidebar max-h-screen min-h-screen bg-[#40A2D8] min-w-[20%] text-white flex flex-col w-[270px] md:w-[64px]">
       <div className="header text-2xl font-bold mx-2 mt-4">Sewa Ruang.com</div>
       <hr className="mt-3" />
       <ul className="mt-4 mx-5">
@@ -56,7 +56,7 @@ function Sidebar({ page }) {
             <div>
               <FontAwesomeIcon icon={faHome} /> {/* Gunakan ikon rumah (home) */}
             </div>
-            <div>Dashboard</div>
+            <div className="hidden md:block">Dashboard</div>
           </a>
         </li>
         <li
@@ -135,7 +135,7 @@ function Sidebar({ page }) {
             <div>
               <FontAwesomeIcon icon={faArrowRight} /> {/* Gunakan ikon arrow right */}
             </div>
-            <div>Logout</div>
+            <div className="hidden md:block">Logout</div>
           </a>
         </li>
       </ul>
