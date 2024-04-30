@@ -11,7 +11,7 @@ function AddPeminjamanTempat() {
   const [kodeBooking, setKodeBooking] = useState("");
   const [tambahan, setTambahan] = useState("");
   const [totalBooking, setTotalBooking] = useState("");
-  const [jumlahOrang, setJumlahOrang] = useState(1); // Default jumlah orang adalah 1
+  const [jumlah_orang, setJumlah_orang] = useState(""); // Default jumlah orang adalah 1
 
   const addPeminjamanTempat = async (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ function AddPeminjamanTempat() {
       kode_booking: kodeBooking,
       tambahan,
       total_booking: totalBooking,
-      jumlah_orang: jumlahOrang,
+      jumlah_orang: jumlah_orang,
     };
 
     const token = localStorage.getItem("token");
@@ -65,19 +65,25 @@ function AddPeminjamanTempat() {
           showConfirmButton: false,
           timer: 1500,
         });
-    } else {
-      // Error tanpa respons dari server
-      Swal.fire({
-        position: "center",
-        icon: "error",
-        title: "Terjadi Kesalahan!",
-        text: "Gagal menambahkan ruang. Mohon coba lagi atau hubungi administrator",
-        showConfirmButton: false,
-        timer: 1500,
-      });
+      } else {
+        // Error tanpa respons dari server
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Terjadi Kesalahan!",
+          text: "Gagal menambahkan ruang. Mohon coba lagi atau hubungi administrator",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     }
-  }
-};
+  };
+
+  // // Fungsi untuk menangani perubahan nilai input jumlah orang
+  // const handleChangeJumlahOrang = (e) => {
+  //   const value = parseInt(e.target.value); // Ubah nilai menjadi integer
+  //   setJumlah_orang(value);
+  // };
 
   return (
     <div className="flex h-screen">
@@ -152,6 +158,20 @@ function AddPeminjamanTempat() {
                 className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 value={totalBooking}
                 onChange={(e) => setTotalBooking(e.target.value)}
+                required
+              />
+            </div>
+            {/* Input field untuk jumlah orang */}
+            <div className="mb-4">
+              <label htmlFor="jumlah_orang" className="block text-sm font-medium text-gray-900">
+                jumlah orang
+              </label>
+              <input
+                type="text"
+                id="jumlah_orang"
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                value={jumlah_orang}
+                onChange={(e) => setJumlah_orang(e.target.value)}
                 required
               />
             </div>

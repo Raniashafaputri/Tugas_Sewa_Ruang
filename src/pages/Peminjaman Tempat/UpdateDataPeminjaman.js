@@ -12,6 +12,7 @@ const UpdateDataPeminjaman = () => {
     const [kode_booking, setKode_booking] = useState("");
     const [tambahan, setTambahan] = useState("");
     const [total_booking, setTotal_booking] = useState("");
+    const [jumlah_orang, setJumlah_orang] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,6 +32,7 @@ const UpdateDataPeminjaman = () => {
                 setKode_booking(dataPeminjaman.kode_booking || "");
                 setTambahan(dataPeminjaman.tambahan || "");
                 setTotal_booking(dataPeminjaman.total_booking || "");
+                setJumlah_orang(dataPeminjaman.jumlah_orang || "");
             } catch (error) {
                 console.error("Terjadi kesalahan:", error);
                 Swal.fire({
@@ -63,6 +65,7 @@ const UpdateDataPeminjaman = () => {
                     kode_booking,
                     tambahan,
                     total_booking,
+                    jumlah_orang
                 },
                 config
             );
@@ -165,6 +168,20 @@ const UpdateDataPeminjaman = () => {
                                     placeholder="Masukkan Total Booking"
                                     value={total_booking}
                                     onChange={(e) => setTotal_booking(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label htmlFor="jumlah_orang" className="block text-sm font-medium text-gray-900">
+                                    Total Booking
+                                </label>
+                                <input
+                                    type="text"
+                                    id="jumlah_orang"
+                                    className="form-input w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500"
+                                    placeholder="Masukkan jumlah orang"
+                                    value={jumlah_orang}
+                                    onChange={(e) => setJumlah_orang(e.target.value)}
                                     required
                                 />
                             </div>

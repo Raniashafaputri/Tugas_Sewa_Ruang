@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUsers,
   faCity,
   faHome,
-  faBook,
-  faClipboard,
-  faArrowRight,
   faSquarePlus,
   faMap,
   faAddressBook,
+  faArrowRight,
+  faBars,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-
 import Swal from "sweetalert2";
 
 function Sidebar({ page }) {
+  const [showSidebar, setShowSidebar] = useState(false);
+
   function logout() {
     Swal.fire({
       title: "Logout",
@@ -41,8 +42,22 @@ function Sidebar({ page }) {
     });
   }
 
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
+
   return (
-    <div className="sidebar max-h-screen min-h-screen bg-[#40A2D8] min-w-[20%] text-white flex flex-col w-[270px] md:w-[64px]">
+    <div className={`sidebar max-h-screen min-h-screen bg-[#40A2D8] min-w-[20%] text-white flex flex-col w-[270px] md:w-[64px] ${showSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
+      <button
+        className="fixed top-4 left-4 z-50 block lg:hidden text-gray-500"
+        onClick={toggleSidebar}
+      >
+        {showSidebar ? (
+          <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+        ) : (
+          <FontAwesomeIcon icon={faBars} className="w-6 h-6" />
+        )}
+      </button>
       <div className="header text-2xl font-bold mx-2 mt-4">Sewa Ruang.com</div>
       <hr className="mt-3" />
       <ul className="mt-4 mx-5">

@@ -98,9 +98,9 @@ function TablePeminjamanTempat() {
   return (
     <div className="flex h-screen">
       <Sidebar page="peminjaman" />
-      <div className="content-page max-h-screen container p-8 min-h-screen">
+      <div className="content-page max-h-screen container p-8 min-h-screen overflow-x-auto">
         <h1 className="judul text-3xl font-semibold">Data Peminjaman Tempat</h1>
-        <div className="tabel-peminjaman mt-12 bg-white p-5 rounded-xl shadow-lg">
+        <div className="tabel-ruang mt-12 bg-white p-5 rounded-xl shadow-lg max-w-full">
           <h2 className="text-xl flex justify-between items-center">
             Data Peminjaman Tempat
             <Link to="/AddpeminjamanTempat">
@@ -110,18 +110,18 @@ function TablePeminjamanTempat() {
             </Link>
           </h2>
           <div className="flex justify-between items-center mt-4">
-            <div className="flex items-center">
+            <div className="flex items-center w-full">
               <FontAwesomeIcon icon={faSearch} className="mr-2 text-gray-500" />
               <input
                 type="text"
                 placeholder="Cari Data..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md"
               />
             </div>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4 max-w-full">
             <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
               <thead className="text-left">
                 <tr>
@@ -144,16 +144,18 @@ function TablePeminjamanTempat() {
                     Total Booking
                   </th>
                   <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                    Jumlah Orang
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                     Aksi
                   </th>
                 </tr>
               </thead>
-                   {/* untuk pemanggilan data*/}
               <tbody className="divide-y divide-gray-200">
                 {currentItems.map((data, index) => (
                   <tr key={index}>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                      {index + 1}
+                      {indexOfFirstItem + index + 1}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {data.nama}
@@ -170,15 +172,18 @@ function TablePeminjamanTempat() {
                     <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                       {data.total_booking}
                     </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">
+                      {data.jumlah_orang}
+                    </td>
                     <td className="whitespace-nowrap text-center py-2">
-                      <div className="flex items-center hover:space-x-1">
+                      <div className="flex items-center justify-center space-x-2">
                         <Link to={`/Peminjaman Tempat/UpdateDataPeminjaman/${data.id}`}>
-                          <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50" title="Edit">
+                          <button className="rounded-full border-2 border-white bg-blue-100 p-2 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50" title="Edit">
                             <FontAwesomeIcon icon={faPenSquare} />
                           </button>
                         </Link>
                         <button
-                          className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
+                          className="rounded-full border-2 border-white bg-red-100 p-2 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
                           onClick={() => deletePeminjaman(data.id)}
                           title="Delete"
                         >

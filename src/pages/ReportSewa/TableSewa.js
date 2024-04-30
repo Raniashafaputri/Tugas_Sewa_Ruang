@@ -48,34 +48,34 @@ function TableReportSewa() {
       });
 
       if (result.isConfirmed) {
-      await axios.delete(`http://localhost:2001/api/report/hapus/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        await axios.delete(`http://localhost:2001/api/report/hapus/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Data berhasil dihapus",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        getAllReport(); // Perbarui data setelah penghapusan berhasil
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
       Swal.fire({
         position: "center",
-        icon: "success",
-        title: "Data berhasil dihapus",
+        icon: "error",
+        title: "Gagal menghapus data",
+        text: "Terjadi kesalahan saat menghapus data. Silakan coba lagi.",
         showConfirmButton: false,
         timer: 1500,
       });
-
-      getAllReport(); // Perbarui data setelah penghapusan berhasil
     }
-  } catch (error) {
-    console.error("Error deleting data:", error);
-    Swal.fire({
-      position: "center",
-      icon: "error",
-      title: "Gagal menghapus data",
-      text: "Terjadi kesalahan saat menghapus data. Silakan coba lagi.",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  }
-};
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -83,9 +83,9 @@ function TableReportSewa() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = reportData.filter((item) =>
-    item.nama.toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = reportData
+    .filter((item) => item.nama.toLowerCase().includes(searchTerm.toLowerCase()))
+    .slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -94,7 +94,7 @@ function TableReportSewa() {
       <Sidebar page="mapel" />
       <div className="content-page max-h-screen container p-8 min-h-screen">
         <h1 className="judul text-3xl font-semibold">Report Sewa</h1>
-        <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg">
+        <div className="tabel-mapel mt-12 bg-white p-5 rounded-xl shadow-lg overflow-x-auto">
           <h2 className="text-xl flex justify-between items-center">Report Sewa</h2>
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
@@ -108,37 +108,37 @@ function TableReportSewa() {
               />
             </div>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-gray-200 mt-4">
+          <div className="table-container">
             <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-s">
               <thead className="text-left">
                 <tr>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">NO</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Ruangan</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Kode</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Tambahan</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Total Booking</th>
-                  <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Aksi</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">NO</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Nama</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Ruangan</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Kode</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Tambahan</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Total Booking</th>
+                  <th className="px-4 py-2 font-medium text-gray-900">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentItems.map((reportData, index) => (
                   <tr key={index}>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{index + 1}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{reportData.nama}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{reportData.ruangan}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{reportData.kode_booking}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{reportData.tambahan}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-gray-700">{reportData.total_booking}</td>
-                    <td className="whitespace-nowrap text-center py-2">
+                    <td className="px-4 py-2 text-gray-700">{index + 1}</td>
+                    <td className="px-4 py-2 text-gray-700">{reportData.nama}</td>
+                    <td className="px-4 py-2 text-gray-700">{reportData.ruangan}</td>
+                    <td className="px-4 py-2 text-gray-700">{reportData.kode_booking}</td>
+                    <td className="px-4 py-2 text-gray-700">{reportData.tambahan}</td>
+                    <td className="px-4 py-2 text-gray-700">{reportData.total_booking}</td>
+                    <td className="text-center py-2">
                       <div className="flex items-center space-x-1">
                         <Link to={`/ReportSewa/UpdateReport/${reportData.id}`}>
-                          <button className="rounded-full border-2 border-white bg-blue-100 p-4 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
+                          <button className="rounded-full border-2 border-white bg-blue-100 p-2 text-blue-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-blue-50">
                             <FontAwesomeIcon icon={faPenSquare} title="Edit" />
                           </button>
                         </Link>
                         <button
-                          className="rounded-full border-2 border-white bg-red-100 p-4 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
+                          className="rounded-full border-2 border-white bg-red-100 p-2 text-red-700 transition-all hover:scale-110 focus:outline-none focus:ring active:bg-red-50"
                           onClick={() => deleteReport(reportData.id)}
                         >
                           <FontAwesomeIcon icon={faTrashAlt} title="Delete" />
@@ -165,9 +165,7 @@ function TableReportSewa() {
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === Math.ceil(reportData.length / itemsPerPage)}
                 className={`px-3 py-1 rounded-md bg-blue-500 text-white ${
-                  currentPage === Math.ceil(reportData.length / itemsPerPage)
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
+                  currentPage === Math.ceil(reportData.length / itemsPerPage) ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <FontAwesomeIcon icon={faAngleRight} className="inline-block" />
